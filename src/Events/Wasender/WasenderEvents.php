@@ -29,7 +29,7 @@ class WasenderEvents implements EventSubscriberInterface
     public function createTask(PostWasenderWebhookSaveEvent $event): void
     {
         if (!$event->getPrevious()) {
-            $this->queueManager->createTask('wasender_webhook', $event->getCurrent()->getAllData());
+            $this->queueManager->createTask('wasender_webhook', ['id' => $event->getCurrent()->getId(), 'data' => $event->getCurrent()->getAllData()]);
         }
     }
 }
