@@ -1,0 +1,4 @@
+Whatsapp:
+  class: Pantono\Messaging\Whatsapp
+WaSender:
+  class: Pantono\Messaging\Service\WasenderService

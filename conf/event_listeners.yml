@@ -1,0 +1,2 @@
+wasender_events:
+  class: Pantono\Messaging\Events\Wasender\WasenderEvents
