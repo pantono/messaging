@@ -82,6 +82,7 @@ class ProcessWasenderWebhook extends AbstractTask
                     $contact->setInstanceId($instance->getId());
                     $contact->setWhatsappId($contactData['id']);
                     $contact->setName($contactData['notify']);
+                    $contact->setStatus('unknown');
                     $this->whatsapp->saveContact($contact);
                     return ['success' => true, 'result' => 'Contact created'];
                 }
