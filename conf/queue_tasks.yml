@@ -1,0 +1,2 @@
+process_wasender_webhook:
+  class: Pantono\Messaging\Task\Wasender\ProcessWasenderWebhook
