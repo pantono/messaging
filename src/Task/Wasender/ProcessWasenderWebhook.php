@@ -33,7 +33,8 @@ class ProcessWasenderWebhook extends AbstractTask
         if (!$webhook) {
             return ['success' => false, 'error' => 'Webhook not found'];
         }
-        $sessionId = $parameters->get('sessionId');
+        $dataParams = new ParameterBag($webhook->getData());
+        $sessionId = $dataParams->get('sessionId');
         if (!$sessionId) {
             return ['success' => false, 'error' => 'No session id'];
         }
