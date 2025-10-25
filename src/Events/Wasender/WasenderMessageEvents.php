@@ -137,9 +137,10 @@ class WasenderMessageEvents implements EventSubscriberInterface
         $fromContact = $this->createOrUpdateContact($instance, $hook->getFromId(), $hook->getFromName());
         $message = new WhatsappMessage();
         $data = $hook->getMessageObject();
-        $message->setMessageId($data->get('id'));
+        $containerData = $hook->getMessageData();
+        $message->setMessageId($containerData->get('id'));
         $message->setInstanceId($instance->getId());
-        $message->setDate(\DateTimeImmutable::createFromFormat('U', $data->get('messageTimestamp')));
+        $message->setDate(\DateTimeImmutable::createFromFormat('U', $containerData->get('messageTimestamp')));
         $message->setType($type);
         $message->setContact($fromContact);
         $message->setIncoming(true);
