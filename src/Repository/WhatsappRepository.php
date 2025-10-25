@@ -98,7 +98,7 @@ class WhatsappRepository extends MysqlRepository
 
     public function getMessageByWhatsappId(int $instanceId, string $whatsappId): ?array
     {
-        return $this->selectRowByValues('whatsapp_message', ['instance_id' => $instanceId, 'whatsapp_id' => $whatsappId]);
+        return $this->selectRowByValues('whatsapp_message', ['instance_id' => $instanceId, 'message_id' => $whatsappId]);
     }
 
     public function saveMessage(WhatsappMessage $message): void
