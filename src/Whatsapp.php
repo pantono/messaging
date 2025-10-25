@@ -93,7 +93,7 @@ class Whatsapp
 
     public function getMessageTypeById(int $id): ?WhatsappMessageType
     {
-        return $this->$this->hydrator->hydrate(WhatsappMessageType::class, $this->repository->getMessageTypeById($id));
+        return $this->hydrator->hydrate(WhatsappMessageType::class, $this->repository->getMessageTypeById($id));
     }
 
     public function getMessagesByFilter(WhatsappMessageFilter $filter): array
