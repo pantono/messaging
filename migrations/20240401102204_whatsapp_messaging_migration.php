@@ -26,6 +26,7 @@ final class WhatsappMessagingMigration extends AbstractMigration
             ->addColumn('contact', 'boolean', ['default' => 0])
             ->addColumn('location', 'boolean', ['default' => 0])
             ->addColumn('audio', 'boolean', ['default' => 0])
+            ->addColumn('reaction', 'boolean', ['default' => 0])
             ->create();
 
         if ($this->isMigratingUp()) {
@@ -39,6 +40,7 @@ final class WhatsappMessagingMigration extends AbstractMigration
                     ['id' => 6, 'name' => 'Location', 'location' => 1],
                     ['id' => 7, 'name' => 'Sticker', 'image' => 1],
                     ['id' => 8, 'name' => 'Audio', 'audio' => 1],
+                    ['id' => 9, 'name' => 'Reaction', 'reaction' => 1],
                 ])->saveData();
         }
         $this->table('whatsapp_contact')

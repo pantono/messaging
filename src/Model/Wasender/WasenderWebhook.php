@@ -5,6 +5,7 @@ namespace Pantono\Messaging\Model\Wasender;
 use Pantono\Database\Traits\SavableModel;
 use Pantono\Contracts\Attributes\Filter;
 use Pantono\Messaging\Model\WhatsappMessage;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
 class WasenderWebhook
@@ -93,5 +94,63 @@ class WasenderWebhook
     {
         $body = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
         return self::fromData($body, $request->headers->all());
+    }
+
+    public function getKey(): ParameterBag
+    {
+        $data = $this->getData();
+        $keyData = $data['data']['messages']['key'] ?? null;
+        if ($keyData === null) {
+            throw new \RuntimeException('No key data in webhook');
+        }
+        return new ParameterBag($keyData);
+    }
+
+    public function isMessageHook(): bool
+    {
+        $messageHooks = ['messages.received', 'messages-group.received', 'messages-personal.received', 'messages.upsert'];
+        if (!in_array($this->getEvent(), $messageHooks)) {
+            return false;
+        }
+        return true;
+    }
+
+    public function getDataObject(): ParameterBag
+    {
+        return new ParameterBag($this->data['data'] ?? []);
+    }
+    public function getMessageObject(): ParameterBag
+    {
+        if (!$this->isMessageHook()) {
+            throw new \RuntimeException('Webhook is not a message');
+        }
+
+        return new ParameterBag($this->data['data']['messages']['message'] ?? []);
+    }
+    public function getMessageData(): ParameterBag
+    {
+        if (!$this->isMessageHook()) {
+            throw new \RuntimeException('Webhook is not a message');
+        }
+
+        return new ParameterBag($this->data['data']['messages'] ?? []);
+    }
+
+    public function getFromName(): ?string
+    {
+        if (!$this->isMessageHook()) {
+            throw new \RuntimeException('Webhook is not a message');
+        }
+        $data = $this->getData();
+        return $data['data']['messages']['pushName'] ?? null;
+    }
+
+    public function getFromId(): ?string
+    {
+        if (!$this->isMessageHook()) {
+            throw new \RuntimeException('Webhook is not a message');
+        }
+        $data = $this->getData();
+        return $data['data']['messages']['remoteJid'] ?? null;
     }
 }

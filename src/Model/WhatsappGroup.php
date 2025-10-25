@@ -13,6 +13,7 @@ class WhatsappGroup
 
     private ?int $id = null;
     private int $instanceId;
+    private string $groupId;
     private string $subject;
     private string $ownerId;
     private ?string $description = null;
@@ -40,6 +41,16 @@ class WhatsappGroup
     public function setInstanceId(int $instanceId): void
     {
         $this->instanceId = $instanceId;
+    }
+
+    public function getGroupId(): string
+    {
+        return $this->groupId;
+    }
+
+    public function setGroupId(string $groupId): void
+    {
+        $this->groupId = $groupId;
     }
 
     public function getSubject(): string
@@ -82,8 +93,22 @@ class WhatsappGroup
         $this->members = $members;
     }
 
-    public function addMember(WhatsappGroupMember $member): void
+    public function hasMember(string $id)
     {
+        foreach ($this->getMembers() as $member) {
+            if ($member->getContact()->getWhatsappId() === $id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function addMember(WhatsappContact $contact, bool $isAdmin = false, bool $isSuperAdmin = false): void
+    {
+        $member = new WhatsappGroupMember();
+        $member->setContact($contact);
+        $member->setIsAdmin($isAdmin);
+        $member->setIsSuperAdmin($isSuperAdmin);
         $this->members[] = $member;
     }
 }

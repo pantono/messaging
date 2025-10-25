@@ -2,8 +2,11 @@
 
 namespace Pantono\Messaging\Task\Wasender;
 
+use Pantono\Messaging\Event\Wasender\WasenderWebhookProcess;
 use Pantono\Messaging\Model\Wasender\WasenderWebhook;
 use Pantono\Messaging\Model\WhatsappContact;
+use Pantono\Messaging\Model\WhatsappGroup;
+use Pantono\Messaging\Model\WhatsappGroupMember;
 use Pantono\Messaging\Model\WhatsappMessage;
 use Pantono\Messaging\Model\WhatsappMessageType;
 use Pantono\Messaging\Service\WasenderService;
@@ -11,6 +14,7 @@ use Pantono\Messaging\Whatsapp;
 use Pantono\Queue\Task\AbstractTask;
 use Pantono\Storage\FileStorage;
 use Pantono\Storage\Model\StoredFile;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 class ProcessWasenderWebhook extends AbstractTask
@@ -18,12 +22,14 @@ class ProcessWasenderWebhook extends AbstractTask
     private Whatsapp $whatsapp;
     private WasenderService $service;
     private FileStorage $fileStorage;
+    private EventDispatcher $dispatcher;
 
-    public function __construct(Whatsapp $whatsapp, WasenderService $service, FileStorage $storage)
+    public function __construct(Whatsapp $whatsapp, WasenderService $service, FileStorage $storage, EventDispatcher $dispatcher)
     {
         $this->whatsapp = $whatsapp;
         $this->service = $service;
         $this->fileStorage = $storage;
+        $this->dispatcher = $dispatcher;
     }
 
     public function process(ParameterBag $parameters): array
@@ -50,6 +56,13 @@ class ProcessWasenderWebhook extends AbstractTask
             return ['success' => false, 'error' => 'Instance for API key not found'];
         }
 
+        $event = new WasenderWebhookProcess();
+        $event->setWebhook($webhook);
+        $event->setInstance($instance);
+        $this->dispatcher->dispatch($event);
+
+        return ['success' => true, 'processed' => $event->isProcessed()];
+
         if ($webhook->getEvent() === 'messages-group.received') {
             $messageParams = new ParameterBag($webhook->getData()['data']['messages'] ?? []);
             $message = new WhatsappMessage();
@@ -57,6 +70,8 @@ class ProcessWasenderWebhook extends AbstractTask
             $message->setMessageId($messageParams->get('id'));
             $message->setDate(\DateTimeImmutable::createFromFormat('U', $messageParams->get('timestamp')));
             $messageObject = new ParameterBag($messageParams->get('message') ?? []);
+            $message->setIncoming(true);
+            $contact = $this->whatsapp->getContactByWhatsappId($instance, $messageParams->get('from'));
             if ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_TEXT) {
                 $message->setTextContent($messageObject->get('conversation'));
             } elseif ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_IMAGE) {
@@ -92,6 +107,40 @@ class ProcessWasenderWebhook extends AbstractTask
                     $contact->setName($contactData['notify']);
                     $this->whatsapp->saveContact($contact);
                     return ['success' => true, 'result' => 'Contact updated'];
+                }
+            }
+        }
+
+        if ($webhook->getEvent() === 'groups.upsert') {
+            $groupResponse = $this->service->getAllGroups();
+            if ($groupResponse['success'] === true) {
+                $data = $groupResponse['data'];
+                foreach ($groupResponse['data'] as $group) {
+                    $groupId = $group['id'] ?? null;
+                    if (!$groupId) {
+                        continue;
+                    }
+                    $meta = $this->service->getGroupMetadata($groupId);
+                    if ($meta['success'] !== true) {
+                        continue;
+                    }
+                    $groupMeta = $meta['data'];
+                    $group = $this->whatsapp->getGroupByWhatsappId($instance, $groupId);
+                    if (!$group) {
+                        $group = new WhatsappGroup();
+                        $group->setInstanceId($instance->getId());
+                        $group->setGroupId($groupId);
+                    }
+                    $group->setSubject($groupMeta['subject']);
+                    $group->setOwnerId($groupMeta['ownerJid']);
+                    foreach ($groupMeta['participants'] as $participant) {
+                        $member = new WhatsappGroupMember();
+                        if ($group->hasMember($participant['jid']) === false) {
+                            $contact = $this->whatsapp->getContactByWhatsappId($instance, $participant['jid']);
+                            if (!$contact) {
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -235,5 +284,9 @@ class ProcessWasenderWebhook extends AbstractTask
         } catch (\Exception $e) {
             return null;
         }
+    }
+
+    private function getFrom()
+    {
     }
 }

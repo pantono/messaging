@@ -33,6 +33,7 @@ class Whatsapp
     public const int MESSAGE_TYPE_LOCATION = 6;
     public const int MESSAGE_TYPE_STICKER = 7;
     public const int MESSAGE_TYPE_AUDIO = 8;
+    public const int MESSAGE_TYPE_REACTION = 9;
 
     public function __construct(WhatsappRepository $repository, Hydrator $hydrator, EventDispatcher $dispatcher)
     {
@@ -79,6 +80,10 @@ class Whatsapp
     public function getGroupById(int $id): ?WhatsappGroup
     {
         return $this->hydrator->hydrate(WhatsappGroup::class, $this->repository->getGroupById($id));
+    }
+    public function getGroupByWhatsappId(WhatsappInstance $instance, string $id): ?WhatsappGroup
+    {
+        return $this->hydrator->hydrate(WhatsappGroup::class, $this->repository->getGroupByWhatsAppId($instance->getId(), $id));
     }
 
     public function getMembersInGroup(WhatsappGroup $group): array
