@@ -29,36 +29,16 @@ class WasenderMessageEvents implements EventSubscriberInterface
     {
         return [
             WasenderWebhookProcess::class => [
-                ['processPrivateMessage', 0],
-                ['processGroupMessage', 0],
+                ['processIncomingMessage', 0],
                 ['processContactUpdate', 0]
             ]
         ];
     }
 
-    public function processPrivateMessage(WasenderWebhookProcess $event): void
+    public function processIncomingMessage(WasenderWebhookProcess $event): void
     {
         $hook = $event->getWebhook();
-        if ($hook->getEvent() === 'messages-personal.received') {
-            $instance = $event->getInstance() ?: $this->whatsapp->getInstanceByMetaValue('apiKey', $hook->getData()['sessionId']);
-            if (!$instance) {
-                $instance = $this->whatsapp->getDefaultInstance();
-            }
-            if (!$instance) {
-                return;
-            }
-            $message = $this->createMessageFromWebhook($instance, $hook);
-            if ($message) {
-                $this->whatsapp->saveMessage($message);
-                $event->setProcessed(true);
-            }
-        }
-    }
-
-    public function processGroupMessage(WasenderWebhookProcess $event): void
-    {
-        $hook = $event->getWebhook();
-        if ($hook->getEvent() === 'messages-group.received') {
+        if ($hook->getEvent() === 'messages-personal.received' || $hook->getEvent() === 'messages-group.received') {
             $instance = $event->getInstance() ?: $this->whatsapp->getInstanceByMetaValue('apiKey', $hook->getData()['sessionId']);
             if (!$instance) {
                 $instance = $this->whatsapp->getDefaultInstance();
