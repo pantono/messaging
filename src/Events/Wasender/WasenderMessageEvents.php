@@ -164,7 +164,11 @@ class WasenderMessageEvents implements EventSubscriberInterface
                 $text = $replyContext->get('text');
                 $context = $replyContext->get('contextInfo', []);
                 $replyTo = $context['stanzaId'] ?? null;
-                $message->setReplyTo($replyTo);
+                $replyMessage = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $replyTo);
+                if ($replyTo) {
+                    $message->setReplyToMessage($replyMessage);
+                    $message->setReplyTo($replyTo);
+                }
             } else {
                 $text = $data->get('conversation', '');
             }
