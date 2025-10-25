@@ -93,7 +93,7 @@ class WhatsappGroup
         $this->members = $members;
     }
 
-    public function hasMember(string $id)
+    public function hasMember(string $id): bool
     {
         foreach ($this->getMembers() as $member) {
             if ($member->getContact()->getWhatsappId() === $id) {

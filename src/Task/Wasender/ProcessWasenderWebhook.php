@@ -3,17 +3,9 @@
 namespace Pantono\Messaging\Task\Wasender;
 
 use Pantono\Messaging\Event\Wasender\WasenderWebhookProcess;
-use Pantono\Messaging\Model\Wasender\WasenderWebhook;
-use Pantono\Messaging\Model\WhatsappContact;
-use Pantono\Messaging\Model\WhatsappGroup;
-use Pantono\Messaging\Model\WhatsappGroupMember;
-use Pantono\Messaging\Model\WhatsappMessage;
-use Pantono\Messaging\Model\WhatsappMessageType;
 use Pantono\Messaging\Service\WasenderService;
 use Pantono\Messaging\Whatsapp;
 use Pantono\Queue\Task\AbstractTask;
-use Pantono\Storage\FileStorage;
-use Pantono\Storage\Model\StoredFile;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -21,14 +13,12 @@ class ProcessWasenderWebhook extends AbstractTask
 {
     private Whatsapp $whatsapp;
     private WasenderService $service;
-    private FileStorage $fileStorage;
     private EventDispatcher $dispatcher;
 
-    public function __construct(Whatsapp $whatsapp, WasenderService $service, FileStorage $storage, EventDispatcher $dispatcher)
+    public function __construct(Whatsapp $whatsapp, WasenderService $service, EventDispatcher $dispatcher)
     {
         $this->whatsapp = $whatsapp;
         $this->service = $service;
-        $this->fileStorage = $storage;
         $this->dispatcher = $dispatcher;
     }
 

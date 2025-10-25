@@ -4,7 +4,6 @@ namespace Pantono\Messaging\Model\Wasender;
 
 use Pantono\Database\Traits\SavableModel;
 use Pantono\Contracts\Attributes\Filter;
-use Pantono\Messaging\Model\WhatsappMessage;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
