@@ -29,7 +29,7 @@ class WhatsappMessage
     #[Locator(methodName: 'getContactById', className: Whatsapp::class), Lazy, FieldName('contact_id')]
     private ?WhatsappContact $contact = null;
     private bool $incoming;
-    private string $textContent;
+    private ?string $textContent = null;
     /**
      * @var array<string,mixed>
      */
@@ -124,12 +124,12 @@ class WhatsappMessage
         $this->incoming = $incoming;
     }
 
-    public function getTextContent(): string
+    public function getTextContent(): ?string
     {
         return $this->textContent;
     }
 
-    public function setTextContent(string $textContent): void
+    public function setTextContent(?string $textContent): void
     {
         $this->textContent = $textContent;
     }

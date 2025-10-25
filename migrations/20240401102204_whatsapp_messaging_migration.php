@@ -81,7 +81,7 @@ final class WhatsappMessagingMigration extends AbstractMigration
             ->addColumn('message_id', 'string')
             ->addColumn('contact_id', 'integer', ['signed' => false])
             ->addColumn('incoming', 'boolean')
-            ->addColumn('text_content', 'text')
+            ->addColumn('text_content', 'text', ['null' => true])
             ->addColumn('meta', 'json')
             ->addColumn('parent_id', 'string', ['null' => true, 'signed' => false])
             ->addColumn('file_id', 'integer', ['null' => true, 'signed' => false])
