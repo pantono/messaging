@@ -25,6 +25,7 @@ class WasenderWebhook
      */
     #[Filter('json_decode')]
     private array $headers = [];
+    private bool $processed = false;
 
     public function getId(): ?int
     {
@@ -152,5 +153,15 @@ class WasenderWebhook
         }
         $data = $this->getData();
         return $data['data']['messages']['remoteJid'] ?? null;
+    }
+
+    public function isProcessed(): bool
+    {
+        return $this->processed;
+    }
+
+    public function setProcessed(bool $processed): void
+    {
+        $this->processed = $processed;
     }
 }

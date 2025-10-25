@@ -60,6 +60,10 @@ class ProcessWasenderWebhook extends AbstractTask
         $event->setWebhook($webhook);
         $event->setInstance($instance);
         $this->dispatcher->dispatch($event);
+        if ($event->isProcessed()) {
+            $webhook->setProcessed(true);
+            $this->service->saveWebhook($webhook);
+        }
 
         return ['success' => true, 'processed' => $event->isProcessed()];
 
