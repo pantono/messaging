@@ -95,7 +95,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
     public function processContactUpdate(WasenderWebhookProcess $event): void
     {
         $hook = $event->getWebhook();
-        if ($hook->getEvent() === 'contacts.updated') {
+        if ($hook->getEvent() === 'contacts.update') {
             $instance = $event->getInstance() ?: $this->whatsapp->getInstanceByMetaValue('apiKey', $hook->getData()['sessionId']);
             if (!$instance) {
                 $instance = $this->whatsapp->getDefaultInstance();
