@@ -168,7 +168,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
             } else {
                 $message->setTextContent('');
             }
-            $file = $this->getFileFromMessageObject($messageObject);
+            $file = $this->getFileFromMessageObject($containerData);
             if ($file) {
                 $message->setFile($file);
             }
