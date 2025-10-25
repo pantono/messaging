@@ -8,6 +8,7 @@ use Pantono\Messaging\Model\WhatsappContact;
 use Pantono\Messaging\Model\WhatsappInstance;
 use Pantono\Messaging\Model\WhatsappMessage;
 use Pantono\Messaging\Model\WhatsappMessageType;
+use Pantono\Messaging\Service\WasenderService;
 use Pantono\Messaging\Utility\Wasender\DecryptWasenderMediaFile;
 use Pantono\Messaging\Whatsapp;
 use Pantono\Storage\FileStorage;
@@ -19,33 +20,43 @@ class WasenderMessageEvents implements EventSubscriberInterface
 {
     private Whatsapp $whatsapp;
     private FileStorage $fileStorage;
+    private WasenderService $service;
 
-    public function __construct(Whatsapp $whatsapp, FileStorage $fileStorage)
+    public function __construct(Whatsapp $whatsapp, FileStorage $fileStorage, WasenderService $service)
     {
         $this->whatsapp = $whatsapp;
         $this->fileStorage = $fileStorage;
+        $this->service = $service;
     }
     public static function getSubscribedEvents(): array
     {
         return [
             WasenderWebhookProcess::class => [
                 ['processIncomingMessage', 0],
-                ['processContactUpdate', 0]
+                ['processContactUpdate', 0],
+                ['processGroupUpdate', 0]
             ]
         ];
+    }
+
+    public function processGroupUpdate(WasenderWebhookProcess $event): void
+    {
+        if ($event->getWebhook()->getEvent() === 'groups.upsert') {
+            $instance = $this->getInstanceFromHook($event);
+            foreach ($this->service->getAllGroups() as $group) {
+                $groupData = $this->service->getGroupMetadata($group['id']);
+                if ($groupData['success'] === true) {
+                }
+                $groupData = $this->whatsapp->getGroupByWhatsappId($instance, $group['id']);
+            }
+        }
     }
 
     public function processIncomingMessage(WasenderWebhookProcess $event): void
     {
         $hook = $event->getWebhook();
         if ($hook->getEvent() === 'messages-personal.received' || $hook->getEvent() === 'messages-group.received') {
-            $instance = $event->getInstance() ?: $this->whatsapp->getInstanceByMetaValue('apiKey', $hook->getData()['sessionId']);
-            if (!$instance) {
-                $instance = $this->whatsapp->getDefaultInstance();
-            }
-            if (!$instance) {
-                return;
-            }
+            $instance = $this->getInstanceFromHook($event);
             $message = $this->createMessageFromWebhook($instance, $hook);
             if ($message) {
                 $this->whatsapp->saveMessage($message);
@@ -58,13 +69,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
     {
         $hook = $event->getWebhook();
         if ($hook->getEvent() === 'contacts.update') {
-            $instance = $event->getInstance() ?: $this->whatsapp->getInstanceByMetaValue('apiKey', $hook->getData()['sessionId']);
-            if (!$instance) {
-                $instance = $this->whatsapp->getDefaultInstance();
-            }
-            if (!$instance) {
-                return;
-            }
+            $instance = $this->getInstanceFromHook($event);
 
             $data = $hook->getDataObject();
 
@@ -135,7 +140,10 @@ class WasenderMessageEvents implements EventSubscriberInterface
             return null;
         }
         $fromContact = $this->createOrUpdateContact($instance, $hook->getFromId(), $hook->getFromName());
-        $message = new WhatsappMessage();
+        $message = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $hook->getFromId());
+        if ($message === null) {
+            $message = new WhatsappMessage();
+        }
         $data = $hook->getMessageObject();
         $containerData = $hook->getMessageData();
         $message->setMessageId($containerData->get('id'));
@@ -184,5 +192,18 @@ class WasenderMessageEvents implements EventSubscriberInterface
             return $this->fileStorage->uploadFile($file['filename'], $file['contents']);
         }
         return null;
+    }
+
+    private function getInstanceFromHook(WasenderWebhookProcess $event): WhatsappInstance
+    {
+        $instance = $event->getInstance() ?: $this->whatsapp->getInstanceByMetaValue('apiKey', $event->getWebhook()->getData()['sessionId']);
+        if (!$instance) {
+            $instance = $this->whatsapp->getDefaultInstance();
+        }
+
+        if (!$instance) {
+            throw new \RuntimeException('No instance available from api key or default settings');
+        }
+        return $instance;
     }
 }
