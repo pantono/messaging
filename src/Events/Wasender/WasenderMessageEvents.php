@@ -8,16 +8,22 @@ use Pantono\Messaging\Model\WhatsappContact;
 use Pantono\Messaging\Model\WhatsappInstance;
 use Pantono\Messaging\Model\WhatsappMessage;
 use Pantono\Messaging\Model\WhatsappMessageType;
+use Pantono\Messaging\Utility\Wasender\DecryptWasenderMediaFile;
 use Pantono\Messaging\Whatsapp;
+use Pantono\Storage\FileStorage;
+use Pantono\Storage\Model\StoredFile;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 class WasenderMessageEvents implements EventSubscriberInterface
 {
     private Whatsapp $whatsapp;
+    private FileStorage $fileStorage;
 
-    public function __construct(Whatsapp $whatsapp)
+    public function __construct(Whatsapp $whatsapp, FileStorage $fileStorage)
     {
         $this->whatsapp = $whatsapp;
+        $this->fileStorage = $fileStorage;
     }
     public static function getSubscribedEvents(): array
     {
@@ -41,23 +47,11 @@ class WasenderMessageEvents implements EventSubscriberInterface
             if (!$instance) {
                 return;
             }
-            $type = $this->getMessageTypeFromWebhook($hook);
-            if (!$type) {
-                return;
+            $message = $this->createMessageFromWebhook($instance, $hook);
+            if ($message) {
+                $this->whatsapp->saveMessage($message);
+                $event->setProcessed(true);
             }
-            $fromContact = $this->createOrUpdateContact($instance, $hook->getFromId(), $hook->getFromName());
-            $message = new WhatsappMessage();
-            $data = $hook->getMessageData();
-            $message->setMessageId($data->get('id'));
-            $message->setInstanceId($instance->getId());
-            $message->setDate(\DateTimeImmutable::createFromFormat('U', $data->get('messageTimestamp')));
-            $message->setType($type);
-            $message->setContact($fromContact);
-            $message->setIncoming(true);
-            $message->setMeta($hook->getMessageObject()->all());
-            $message->setStatus('received');
-            $this->whatsapp->saveMessage($message);
-            $event->setProcessed(true);
         }
     }
 
@@ -72,23 +66,11 @@ class WasenderMessageEvents implements EventSubscriberInterface
             if (!$instance) {
                 return;
             }
-            $type = $this->getMessageTypeFromWebhook($hook);
-            if (!$type) {
-                return;
+            $message = $this->createMessageFromWebhook($instance, $hook);
+            if ($message) {
+                $this->whatsapp->saveMessage($message);
+                $event->setProcessed(true);
             }
-            $fromContact = $this->createOrUpdateContact($instance, $hook->getFromId(), $hook->getFromName());
-            $message = new WhatsappMessage();
-            $data = $hook->getMessageData();
-            $message->setMessageId($data->get('id'));
-            $message->setInstanceId($instance->getId());
-            $message->setDate(\DateTimeImmutable::createFromFormat('U', $data->get('messageTimestamp')));
-            $message->setType($type);
-            $message->setContact($fromContact);
-            $message->setIncoming(true);
-            $message->setMeta($hook->getMessageObject()->all());
-            $message->setStatus('received');
-            $this->whatsapp->saveMessage($message);
-            $event->setProcessed(true);
         }
     }
 
@@ -164,5 +146,62 @@ class WasenderMessageEvents implements EventSubscriberInterface
             $this->whatsapp->saveContact($contact);
         }
         return $contact;
+    }
+
+    private function createMessageFromWebhook(WhatsappInstance $instance, WasenderWebhook $hook): ?WhatsappMessage
+    {
+        $type = $this->getMessageTypeFromWebhook($hook);
+        if (!$type) {
+            return null;
+        }
+        $fromContact = $this->createOrUpdateContact($instance, $hook->getFromId(), $hook->getFromName());
+        $message = new WhatsappMessage();
+        $data = $hook->getMessageObject();
+        $message->setMessageId($data->get('id'));
+        $message->setInstanceId($instance->getId());
+        $message->setDate(\DateTimeImmutable::createFromFormat('U', $data->get('messageTimestamp')));
+        $message->setType($type);
+        $message->setContact($fromContact);
+        $message->setIncoming(true);
+        $message->setMeta($hook->getMessageObject()->all());
+        $message->setStatus('received');
+        $messageObject = null;
+        if ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_TEXT) {
+            $text = $data->get('conversation', '');
+            $message->setTextContent($text);
+        } elseif ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_IMAGE) {
+            $messageObject = new ParameterBag($data->get('imageMessage', []));
+            if ($messageObject->has('caption')) {
+                $message->setTextContent($messageObject->get('caption'));
+            } else {
+                $message->setTextContent('');
+            }
+            $file = $this->getFileFromMessageObject($messageObject);
+            if ($file) {
+                $message->setFile($file);
+            }
+        } elseif ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_STICKER) {
+            $messageObject = new ParameterBag($data->get('stickerMessage', []));
+            if ($messageObject->has('caption')) {
+                $message->setTextContent($messageObject->get('caption'));
+            } else {
+                $message->setTextContent('');
+            }
+            $file = $this->getFileFromMessageObject($messageObject);
+            if ($file) {
+                $message->setFile($file);
+            }
+        }
+
+        return $message;
+    }
+
+    private function getFileFromMessageObject(ParameterBag $messageObject): ?StoredFile
+    {
+        $file = DecryptWasenderMediaFile::decryptFileFromMessageObject($messageObject);
+        if ($file) {
+            return $this->fileStorage->uploadFile($file['filename'], $file['contents']);
+        }
+        return null;
     }
 }
