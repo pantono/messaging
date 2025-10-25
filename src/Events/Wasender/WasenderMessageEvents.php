@@ -94,6 +94,9 @@ class WasenderMessageEvents implements EventSubscriberInterface
         if ($messageObject->has('conversation')) {
             return $this->whatsapp->getMessageTypeById(Whatsapp::MESSAGE_TYPE_TEXT);
         }
+        if ($messageObject->has('extendedTextMessage')) {
+            return $this->whatsapp->getMessageTypeById(Whatsapp::MESSAGE_TYPE_TEXT);
+        }
         if ($messageObject->has('albumMessage')) {
             return $this->whatsapp->getMessageTypeById(Whatsapp::MESSAGE_TYPE_ALBUM);
         }
@@ -156,7 +159,15 @@ class WasenderMessageEvents implements EventSubscriberInterface
         $message->setStatus('received');
         $messageObject = null;
         if ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_TEXT) {
-            $text = $data->get('conversation', '');
+            if ($data->has('extendedTextMessage')) {
+                $replyContext = new ParameterBag($data->get('extendedTextMessage', []));
+                $text = $replyContext->get('text');
+                $context = $replyContext->get('contextInfo', []);
+                $replyTo = $context['stanzaId'] ?? null;
+                $message->setReplyTo($replyTo);
+            } else {
+                $text = $data->get('conversation', '');
+            }
             $message->setTextContent($text);
         } elseif ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_IMAGE) {
             $messageObject = new ParameterBag($data->get('imageMessage', []));
