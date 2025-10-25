@@ -19,4 +19,9 @@ class WasenderRepository extends MysqlRepository
     {
         return $this->selectSingleRow('whatsapp_wasender_webhook', 'id', $id);
     }
+
+    public function getUnprocessedWebhooks(): array
+    {
+        return $this->selectRowsByValues('whatsapp_wasender_webhook', ['processed' => 0], 'id ASC');
+    }
 }

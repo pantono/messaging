@@ -41,6 +41,11 @@ class WasenderService implements WhatsappServiceInterface
         $this->baseUrl = rtrim($instance->getMetaValue('baseUrl') ?: 'https://wasenderapi.com/api', '/');
     }
 
+    public function getUnprocessedWebhooks(): array
+    {
+        return $this->hydrator->hydrateSet(WasenderWebhook::class, $this->repository->getUnprocessedWebhooks());
+    }
+
     public function getAllGroups(): array
     {
         return $this->get('/groups');
