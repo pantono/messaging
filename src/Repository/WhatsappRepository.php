@@ -18,7 +18,11 @@ class WhatsappRepository extends MysqlRepository
 
     public function getContactByWhatsappId(WhatsappInstance $instance, string $phoneNumber): ?array
     {
-        return $this->selectRowByValues('whatsapp_contact', ['instance_id' => $instance->getId(), 'whatsapp_id' => $phoneNumber]);
+        $select = $this->getDb()->select()->from('whatsapp_contact')
+            ->where('instance_id=?', $instance->getId())
+            ->where('whatsapp_id=?', $phoneNumber)
+            ->setLockForShare(true);
+        return $this->getDb()->fetchRow($select);
     }
 
     public function getGroupById(int $id): ?array
