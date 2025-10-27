@@ -13,7 +13,10 @@ class WhatsappRepository extends MysqlRepository
 {
     public function getContactById(int $id): ?array
     {
-        return $this->selectSingleRow('whatsapp_contact', 'id', $id);
+        $select = $this->getDb()->select()->from('whatsapp_contact')
+            ->where('id=?', $id)
+            ->setLockForUpdate(true);
+        return $this->selectSingleRowFromQuery($select);
     }
 
     public function getContactByWhatsappId(WhatsappInstance $instance, string $phoneNumber): ?array
@@ -44,6 +47,7 @@ class WhatsappRepository extends MysqlRepository
     {
         return $this->selectSingleRow('whatsapp_instance', 'id', $id);
     }
+
     public function getAllInstances(): ?array
     {
         return $this->selectAll('whatsapp_instance');
