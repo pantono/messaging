@@ -6,7 +6,7 @@ use Pantono\Contracts\Attributes\Filter;
 use Pantono\Contracts\Attributes\Locator;
 use Pantono\Messaging\Whatsapp;
 
-#[Locator(methodName: Whatsapp::class, className: 'getInstanceById')]
+#[Locator(methodName: 'getInstanceById', className: Whatsapp::class)]
 class WhatsappInstance
 {
     private ?int $id = null;
