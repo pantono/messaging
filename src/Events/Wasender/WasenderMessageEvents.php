@@ -123,6 +123,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
 
     private function createOrUpdateContact(WhatsappInstance $instance, string $id, string $name = ''): WhatsappContact
     {
+        $this->whatsapp->startTransaction();
         $contact = $this->whatsapp->getContactByWhatsappId($instance, $id);
         if (!$contact) {
             $contact = new WhatsappContact();
@@ -133,6 +134,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
             $contact->setOnline(false);
             $this->whatsapp->saveContact($contact);
         }
+        $this->whatsapp->endTransaction();
         return $contact;
     }
 
@@ -145,6 +147,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
         $fromContact = $this->createOrUpdateContact($instance, $hook->getFromId(), $hook->getFromName());
         $data = $hook->getMessageObject();
         $containerData = $hook->getMessageData();
+        $this->whatsapp->startTransaction();
         $message = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $containerData->get('id'));
         if ($message === null) {
             $message = new WhatsappMessage();
@@ -208,6 +211,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
             }
         }
 
+        $this->whatsapp->endTransaction();
         return $message;
     }
 

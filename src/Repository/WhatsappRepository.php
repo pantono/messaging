@@ -106,7 +106,11 @@ class WhatsappRepository extends MysqlRepository
 
     public function getMessageByWhatsappId(int $instanceId, string $whatsappId): ?array
     {
-        return $this->selectRowByValues('whatsapp_message', ['instance_id' => $instanceId, 'message_id' => $whatsappId]);
+        $select = $this->getDb()->select()->from('whatsapp_message')
+            ->where('instance_id=?', $instanceId)
+            ->where('message_id=?', $whatsappId)
+            ->setLockForUpdate(true);
+        return $this->select($select);
     }
 
     public function saveMessage(WhatsappMessage $message): void
@@ -150,5 +154,17 @@ class WhatsappRepository extends MysqlRepository
             ->where("metadata->>'.$key' = ?", $value);
 
         return $this->selectSingleRowFromQuery($select);
+    }
+
+    public function startTransaction(): void
+    {
+        $this->getDb()->getConnection()->beginTransaction();
+    }
+
+    public function endTransaction(): void
+    {
+        if ($this->getDb()->getConnection()->inTransaction()) {
+            $this->getDb()->getConnection()->commit();
+        }
     }
 }

@@ -185,4 +185,14 @@ class Whatsapp
     {
         $this->getServiceForInstance($contact->getInstance())->sendText($contact->getWhatsappId(), $text);
     }
+
+    public function startTransaction(): void
+    {
+        $this->repository->startTransaction();
+    }
+
+    public function endTransaction(): void
+    {
+        $this->repository->endTransaction();
+    }
 }
