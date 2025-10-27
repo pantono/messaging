@@ -110,7 +110,8 @@ class WhatsappRepository extends MysqlRepository
             ->where('instance_id=?', $instanceId)
             ->where('message_id=?', $whatsappId)
             ->setLockForUpdate(true);
-        return $this->select($select);
+
+        return $this->selectSingleRowFromQuery($select);
     }
 
     public function saveMessage(WhatsappMessage $message): void
