@@ -28,6 +28,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
         $this->fileStorage = $fileStorage;
         $this->service = $service;
     }
+
     public static function getSubscribedEvents(): array
     {
         return [
@@ -121,8 +122,11 @@ class WasenderMessageEvents implements EventSubscriberInterface
         return null;
     }
 
-    private function createOrUpdateContact(WhatsappInstance $instance, string $id, string $name = ''): WhatsappContact
+    private function createOrUpdateContact(WhatsappInstance $instance, string $id, ?string $name = ''): WhatsappContact
     {
+        if ($name === null) {
+            $name = '';
+        }
         $this->whatsapp->startTransaction();
         $contact = $this->whatsapp->getContactByWhatsappId($instance, $id);
         if (!$contact) {
