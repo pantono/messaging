@@ -21,7 +21,7 @@ class WhatsappRepository extends MysqlRepository
         $select = $this->getDb()->select()->from('whatsapp_contact')
             ->where('instance_id=?', $instance->getId())
             ->where('whatsapp_id=?', $phoneNumber)
-            ->setLockForShare(true);
+            ->setLockForUpdate(true);
         return $this->getDb()->fetchRow($select);
     }
 
