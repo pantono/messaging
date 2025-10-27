@@ -158,7 +158,12 @@ class WasenderMessageEvents implements EventSubscriberInterface
         }
         $message->setMessageId($containerData->get('id'));
         $message->setInstanceId($instance->getId());
-        $message->setDate(\DateTimeImmutable::createFromFormat('U', $containerData->get('messageTimestamp')));
+        if ($containerData->get('messageTimestamp')) {
+            $message->setDate(\DateTimeImmutable::createFromFormat('U', $containerData->get('messageTimestamp')));
+        }
+        if (!$message->getDate()) {
+            $message->setDate(new \DateTimeImmutable());
+        }
         $message->setType($type);
         $message->setContact($fromContact);
         $message->setIncoming(true);
