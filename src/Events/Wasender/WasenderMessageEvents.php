@@ -159,7 +159,11 @@ class WasenderMessageEvents implements EventSubscriberInterface
         $message->setMessageId($containerData->get('id'));
         $message->setInstanceId($instance->getId());
         if ($containerData->has('messageTimestamp')) {
-            $message->setDate(\DateTimeImmutable::createFromFormat('U', $containerData->get('messageTimestamp')));
+            $ts = $containerData->get('messageTimestamp');
+            if (is_array($containerData->get('messageTimestamp'))) {
+                $ts = $containerData->get('messageTimestamp')['low'];
+            }
+            $message->setDate(\DateTimeImmutable::createFromFormat('U', $ts));
         } else {
             $message->setDate(new \DateTimeImmutable());
         }
@@ -175,10 +179,12 @@ class WasenderMessageEvents implements EventSubscriberInterface
                 $text = $replyContext->get('text');
                 $context = $replyContext->get('contextInfo', []);
                 $replyTo = $context['stanzaId'] ?? null;
-                $replyMessage = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $replyTo);
                 if ($replyTo) {
-                    $message->setReplyToMessage($replyMessage);
-                    $message->setReplyTo($replyTo);
+                    $replyMessage = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $replyTo);
+                    if ($replyMessage) {
+                        $message->setReplyToMessage($replyMessage);
+                        $message->setReplyTo($replyTo);
+                    }
                 }
             } else {
                 $text = $data->get('conversation', '');
