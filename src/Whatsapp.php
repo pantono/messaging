@@ -188,7 +188,7 @@ class Whatsapp
 
     public function startTransaction(): void
     {
-        $this->repository->startTransaction();
+        $this->repository->beginTransaction();
     }
 
     public function endTransaction(): void

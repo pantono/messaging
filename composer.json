@@ -13,7 +13,8 @@
     "pantono/logger": "^0",
     "pantono/images": "^1.0",
     "pantono/queue": "^1.0",
-    "ext-openssl": "*"
+    "ext-openssl": "*",
+    "ext-pdo": "*"
   },
   "require-dev": {
     "phpunit/phpunit": "^10.3",

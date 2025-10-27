@@ -56,7 +56,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
     public function processIncomingMessage(WasenderWebhookProcess $event): void
     {
         $hook = $event->getWebhook();
-        if ($hook->getEvent() === 'messages.upsert') {
+        if ($hook->getEvent() === 'messages.upsert' || $hook->getEvent() === 'messages-personal.received' || $hook->getEvent() === 'messages-group.received') {
             $instance = $this->getInstanceFromHook($event);
             $message = $this->createMessageFromWebhook($instance, $hook);
             if ($message) {

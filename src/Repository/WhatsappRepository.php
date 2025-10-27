@@ -15,7 +15,7 @@ class WhatsappRepository extends MysqlRepository
     {
         $select = $this->getDb()->select()->from('whatsapp_contact')
             ->where('id=?', $id)
-            ->setLockForUpdate(true);
+            ->setLockForShare(true);
         return $this->selectSingleRowFromQuery($select);
     }
 
@@ -24,7 +24,7 @@ class WhatsappRepository extends MysqlRepository
         $select = $this->getDb()->select()->from('whatsapp_contact')
             ->where('instance_id=?', $instance->getId())
             ->where('whatsapp_id=?', $phoneNumber)
-            ->setLockForUpdate(true);
+            ->setLockForShare(true);
         return $this->getDb()->fetchRow($select);
     }
 
@@ -155,17 +155,5 @@ class WhatsappRepository extends MysqlRepository
             ->where("metadata->>'.$key' = ?", $value);
 
         return $this->selectSingleRowFromQuery($select);
-    }
-
-    public function startTransaction(): void
-    {
-        $this->getDb()->getConnection()->beginTransaction();
-    }
-
-    public function endTransaction(): void
-    {
-        if ($this->getDb()->getConnection()->inTransaction()) {
-            $this->getDb()->getConnection()->commit();
-        }
     }
 }
