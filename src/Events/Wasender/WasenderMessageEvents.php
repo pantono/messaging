@@ -167,9 +167,16 @@ class WasenderMessageEvents implements EventSubscriberInterface
         } else {
             $message->setDate(new \DateTimeImmutable());
         }
+        $keyParams = new ParameterBag($containerData->get('key', []));
+
+        $message->setIncoming(true);
+        if ($keyParams->has('fromMe')) {
+            if ($keyParams->get('fromMe') === true) {
+                $message->setIncoming(false);
+            }
+        }
         $message->setType($type);
         $message->setContact($fromContact);
-        $message->setIncoming(true);
         $message->setMeta($hook->getMessageObject()->all());
         $message->setStatus('received');
         $messageObject = null;
