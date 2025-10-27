@@ -179,4 +179,17 @@ class Whatsapp
         $service->setInstance($instance);
         return $service;
     }
+
+    public function sendMessage(WhatsappMessage $message): bool
+    {
+        $instance = $this->getInstanceById($message->getInstanceId());
+        if ($instance) {
+            if ($message->getType() === self::MESSAGE_TYPE_TEXT) {
+                $this->getServiceForInstance($instance)->sendText($message->getContact()->getWhatsappId(), $message->getTextContent());
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
