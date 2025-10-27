@@ -25,7 +25,7 @@ class WhatsappMessage
     private ?WhatsappMessageType $type = null;
     #[Locator(methodName: 'getGroupById', className: Whatsapp::class), Lazy, FieldName('group_id')]
     private ?WhatsappGroup $group = null;
-    private string $messageId;
+    private ?string $messageId = null;
     #[Locator(methodName: 'getContactById', className: Whatsapp::class), Lazy, FieldName('contact_id')]
     private ?WhatsappContact $contact = null;
     private bool $incoming;
@@ -94,12 +94,12 @@ class WhatsappMessage
         $this->group = $group;
     }
 
-    public function getMessageId(): string
+    public function getMessageId(): ?string
     {
         return $this->messageId;
     }
 
-    public function setMessageId(string $messageId): void
+    public function setMessageId(?string $messageId): void
     {
         $this->messageId = $messageId;
     }

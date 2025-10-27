@@ -78,7 +78,7 @@ final class WhatsappMessagingMigration extends AbstractMigration
             ->addColumn('date', 'datetime')
             ->addColumn('type_id', 'integer', ['signed' => false])
             ->addColumn('group_id', 'integer', ['signed' => false])
-            ->addColumn('message_id', 'string')
+            ->addColumn('message_id', 'string', ['null' => true])
             ->addColumn('contact_id', 'integer', ['signed' => false])
             ->addColumn('incoming', 'boolean')
             ->addColumn('text_content', 'text', ['null' => true])
