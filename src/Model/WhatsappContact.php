@@ -13,7 +13,7 @@ class WhatsappContact
     use SavableModel;
 
     private ?int $id = null;
-    #[FieldName('instance_id'), Locator(methodName: Whatsapp::class, className: 'getInstanceById')]
+    #[FieldName('instance_id'), Locator(methodName: 'getInstanceById', className: Whatsapp::class)]
     private WhatsappInstance $instance;
     private string $whatsappId;
     private string $name;
