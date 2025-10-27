@@ -184,7 +184,7 @@ class Whatsapp
     {
         $instance = $this->getInstanceById($message->getInstanceId());
         if ($instance) {
-            if ($message->getType() === self::MESSAGE_TYPE_TEXT) {
+            if ($message->getType()->getId() === self::MESSAGE_TYPE_TEXT) {
                 $this->getServiceForInstance($instance)->sendText($message->getContact()->getWhatsappId(), $message->getTextContent());
                 return true;
             }
