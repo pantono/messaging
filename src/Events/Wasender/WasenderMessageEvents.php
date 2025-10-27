@@ -126,7 +126,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
         $contact = $this->whatsapp->getContactByWhatsappId($instance, $id);
         if (!$contact) {
             $contact = new WhatsappContact();
-            $contact->setInstanceId($instance->getId());
+            $contact->setInstance($instance);
             $contact->setWhatsappId($id);
             $contact->setName($name);
             $contact->setStatus('unknown');

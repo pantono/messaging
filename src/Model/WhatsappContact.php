@@ -2,6 +2,7 @@
 
 namespace Pantono\Messaging\Model;
 
+use Pantono\Contracts\Attributes\FieldName;
 use Pantono\Contracts\Attributes\Locator;
 use Pantono\Database\Traits\SavableModel;
 use Pantono\Messaging\Whatsapp;
@@ -10,8 +11,10 @@ use Pantono\Messaging\Whatsapp;
 class WhatsappContact
 {
     use SavableModel;
+
     private ?int $id = null;
-    private int $instanceId;
+    #[FieldName('instance_id')]
+    private WhatsappInstance $instance;
     private string $whatsappId;
     private string $name;
     private string $status;
@@ -27,14 +30,14 @@ class WhatsappContact
         $this->id = $id;
     }
 
-    public function getInstanceId(): int
+    public function getInstance(): WhatsappInstance
     {
-        return $this->instanceId;
+        return $this->instance;
     }
 
-    public function setInstanceId(int $instanceId): void
+    public function setInstance(WhatsappInstance $instance): void
     {
-        $this->instanceId = $instanceId;
+        $this->instance = $instance;
     }
 
     public function getWhatsappId(): string
