@@ -167,6 +167,7 @@ class Whatsapp
         return $this->getServiceForInstance($instance);
     }
 
+
     public function getServiceForInstance(WhatsappInstance $instance): WhatsappServiceInterface
     {
         $service = StaticLocator::getLocator()->loadDependency('@' . $instance->getService());
@@ -180,16 +181,8 @@ class Whatsapp
         return $service;
     }
 
-    public function sendMessage(WhatsappMessage $message): bool
+    public function sendPrivateMessage(WhatsappContact $contact, string $text): void
     {
-        $instance = $this->getInstanceById($message->getInstanceId());
-        if ($instance) {
-            if ($message->getType()->getId() === self::MESSAGE_TYPE_TEXT) {
-                $this->getServiceForInstance($instance)->sendText($message->getContact()->getWhatsappId(), $message->getTextContent());
-                return true;
-            }
-        }
-
-        return false;
+        $this->getServiceForInstance($contact->getInstance())->sendText($contact->getWhatsappId(), $text);
     }
 }
