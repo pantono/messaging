@@ -57,7 +57,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
     {
         $hook = $event->getWebhook();
         if ($hook->getEvent() === 'messages.upsert' || $hook->getEvent() === 'messages-personal.received' || $hook->getEvent() === 'messages-group.received') {
-            $id = $hook->getMessageObject()->get('id');
+            $id = $hook->getMessageData()->get('id');
             $this->whatsapp->acquireMessageLock($id);
             $instance = $this->getInstanceFromHook($event);
             $message = $this->createMessageFromWebhook($instance, $hook);
