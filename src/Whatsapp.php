@@ -195,4 +195,14 @@ class Whatsapp
     {
         $this->repository->endTransaction();
     }
+
+    public function acquireMessageLock(string $messageId): bool
+    {
+        return $this->repository->getLock($messageId);
+    }
+
+    public function releaseMessageLock(string $messageId): void
+    {
+        $this->repository->releaseLock($messageId);
+    }
 }
