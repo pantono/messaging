@@ -48,7 +48,12 @@ class WasenderService implements WhatsappServiceInterface
 
     public function getAllGroups(): array
     {
-        return $this->get('/groups');
+        $response = $this->get('/groups');
+        $status = $response['status'] ?? null;
+        if (!$status) {
+            throw new \RuntimeException('Invalid query');
+        }
+        return $response['data'];
     }
 
     public function getGroupMetadata(string $id): array
