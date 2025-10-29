@@ -49,7 +49,7 @@ class WasenderService implements WhatsappServiceInterface
     public function getAllGroups(): array
     {
         $response = $this->get('/groups');
-        $status = $response['status'] ?? null;
+        $status = $response['success'] ?? null;
         if (!$status) {
             throw new \RuntimeException('Invalid query');
         }
