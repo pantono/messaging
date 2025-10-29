@@ -5,6 +5,8 @@ namespace Pantono\Messaging\Events\Wasender;
 use Pantono\Messaging\Event\Wasender\WasenderWebhookProcess;
 use Pantono\Messaging\Model\Wasender\WasenderWebhook;
 use Pantono\Messaging\Model\WhatsappContact;
+use Pantono\Messaging\Model\WhatsappGroup;
+use Pantono\Messaging\Model\WhatsappGroupMember;
 use Pantono\Messaging\Model\WhatsappInstance;
 use Pantono\Messaging\Model\WhatsappMessage;
 use Pantono\Messaging\Model\WhatsappMessageType;
@@ -47,8 +49,22 @@ class WasenderMessageEvents implements EventSubscriberInterface
             foreach ($this->service->getAllGroups() as $group) {
                 $groupData = $this->service->getGroupMetadata($group['id']);
                 if ($groupData['success'] === true) {
+                    $groupResponse = new ParameterBag($groupData['data']);
+                    $groupModel = $this->whatsapp->getGroupByWhatsappId($instance, $group['id']);
+                    if (!$groupModel) {
+                        $groupModel = new WhatsappGroup();
+                        $groupModel->setInstanceId($instance->getId());
+                        $groupModel->setGroupId($groupResponse->get('id'));
+                        $groupModel->setSubject($groupResponse->get('subject'));
+                        $groupModel->setOwnerId($groupResponse->get('ownerJid'));
+                        $groupModel->setDescription('');
+                    }
+                    foreach ($groupResponse->get('participants', []) as $participant) {
+                        $contact = $this->createOrUpdateContact($instance, $participant['id']);
+                        $groupModel->addMember($contact, $participant['lid'], $participant['admin'] === 'admin', $participant['admin'] === 'superadmin');
+                    }
+                    $this->whatsapp->saveGroup($groupModel);
                 }
-                $groupData = $this->whatsapp->getGroupByWhatsappId($instance, $group['id']);
             }
         }
     }

@@ -14,6 +14,7 @@ class WhatsappGroupMember
     private int $contactId;
     #[Locator(methodName: 'getContactById', className: Whatsapp::class), FieldName('contact_id'), Lazy]
     private WhatsappContact $contact;
+    private string $lid;
     private bool $isAdmin;
     private bool $isSuperAdmin;
 
@@ -75,5 +76,15 @@ class WhatsappGroupMember
     public function setIsSuperAdmin(bool $isSuperAdmin): void
     {
         $this->isSuperAdmin = $isSuperAdmin;
+    }
+
+    public function getLid(): string
+    {
+        return $this->lid;
+    }
+
+    public function setLid(string $lid): void
+    {
+        $this->lid = $lid;
     }
 }

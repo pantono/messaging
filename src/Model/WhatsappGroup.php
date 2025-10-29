@@ -103,9 +103,18 @@ class WhatsappGroup
         return false;
     }
 
-    public function addMember(WhatsappContact $contact, bool $isAdmin = false, bool $isSuperAdmin = false): void
+    public function addMember(WhatsappContact $contact, string $lid, bool $isAdmin = false, bool $isSuperAdmin = false): void
     {
+        foreach ($this->getMembers() as $member) {
+            if ($member->getContact()->getId() === $contact->getId()) {
+                $member->setLid($lid);
+                $member->setIsAdmin($isAdmin);
+                $member->setIsSuperAdmin($isSuperAdmin);
+                return;
+            }
+        }
         $member = new WhatsappGroupMember();
+        $member->setLid($lid);
         $member->setContact($contact);
         $member->setIsAdmin($isAdmin);
         $member->setIsSuperAdmin($isSuperAdmin);

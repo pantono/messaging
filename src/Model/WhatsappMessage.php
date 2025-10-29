@@ -193,4 +193,8 @@ class WhatsappMessage
     {
         $this->status = $status;
     }
+
+    public function isMentioned(string $phoneNumber)
+    {
+    }
 }
