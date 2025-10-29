@@ -2,6 +2,7 @@
 
 namespace Pantono\Messaging\Model;
 
+use Pantono\Contracts\Attributes\FieldName;
 use Pantono\Contracts\Attributes\Locator;
 use Pantono\Database\Traits\SavableModel;
 use Pantono\Messaging\Whatsapp;
@@ -20,7 +21,7 @@ class WhatsappGroup
     /**
      * @var WhatsappGroupMember[]
      */
-    #[Locator(methodName: 'getMembersInGroup', className: Whatsapp::class)]
+    #[Locator(methodName: 'getMembersInGroup', className: Whatsapp::class), FieldName('$this')]
     private array $members = [];
 
     public function getId(): ?int

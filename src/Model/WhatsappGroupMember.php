@@ -13,7 +13,7 @@ class WhatsappGroupMember
     private int $groupId;
     private int $contactId;
     #[Locator(methodName: 'getContactById', className: Whatsapp::class), FieldName('contact_id'), Lazy]
-    private WhatsappContact $contact;
+    private ?WhatsappContact $contact = null;
     private string $lid;
     private bool $isAdmin;
     private bool $isSuperAdmin;
