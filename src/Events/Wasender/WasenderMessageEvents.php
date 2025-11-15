@@ -57,6 +57,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
                         $groupModel = new WhatsappGroup();
                         $groupModel->setSubject($group['name']);
                         $groupModel->setGroupId($groupId);
+                        $groupModel->setInstanceId($instance->getId());
                         $this->whatsapp->saveGroup($groupModel);
                         $this->queueManager->createTask('wasender_update_group', ['id' => $groupId, 'instance_id' => $instance->getId()]);
                     }
