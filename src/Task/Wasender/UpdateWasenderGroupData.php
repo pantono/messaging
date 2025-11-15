@@ -31,6 +31,7 @@ class UpdateWasenderGroupData extends AbstractTask
         if (!$instance) {
             throw new \RuntimeException('No instance found for id ' . $instanceId);
         }
+        $this->service->setInstance($instance);
         $this->updateGroup($instance, $groupId);
         return ['success' => true];
     }
