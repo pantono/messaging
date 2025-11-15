@@ -48,7 +48,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
     {
         if ($event->getWebhook()->getEvent() === 'chats.upsert') {
             $instance = $this->getInstanceFromHook($event);
-            $groupData = $event->getWebhook()->getDataObject()['chats'] ?? [];
+            $groupData = $event->getWebhook()->getDataObject()->get('chats', []);
             if (is_array($groupData)) {
                 foreach ($groupData as $group) {
                     $groupId = $group['id'] ?? null;
