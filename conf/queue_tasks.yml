@@ -1,6 +1,6 @@
 process_wasender_webhook:
   controller: Pantono\Messaging\Task\Wasender\ProcessWasenderWebhook
   task: wasender_webhook
-update_group:
+update_wasender_group:
   controller: Pantono\Messaging\Task\Wasender\UpdateWasenderGroupData
   task: wasender_update_group
