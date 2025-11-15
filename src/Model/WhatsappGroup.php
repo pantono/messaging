@@ -64,12 +64,12 @@ class WhatsappGroup
         $this->subject = $subject;
     }
 
-    public function getOwnerId(): string
+    public function getOwnerId(): ?string
     {
         return $this->ownerId;
     }
 
-    public function setOwnerId(string $ownerId): void
+    public function setOwnerId(?string $ownerId): void
     {
         $this->ownerId = $ownerId;
     }
