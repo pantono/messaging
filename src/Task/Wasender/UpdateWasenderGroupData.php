@@ -20,6 +20,7 @@ class UpdateWasenderGroupData extends AbstractTask
         $this->whatsapp = $whatsapp;
         $this->service = $service;
     }
+
     public function process(ParameterBag $parameters): array
     {
         $groupId = $parameters->get('id');
@@ -46,10 +47,10 @@ class UpdateWasenderGroupData extends AbstractTask
                 $groupModel = new WhatsappGroup();
                 $groupModel->setInstanceId($instance->getId());
                 $groupModel->setGroupId($groupResponse->get('id'));
-                $groupModel->setSubject($groupResponse->get('subject'));
-                $groupModel->setOwnerId($groupResponse->get('ownerJid'));
-                $groupModel->setDescription('');
             }
+            $groupModel->setSubject($groupResponse->get('subject'));
+            $groupModel->setOwnerId($groupResponse->get('ownerJid'));
+            $groupModel->setDescription($groupResponse->get('desc'));
             foreach ($groupResponse->get('participants', []) as $participant) {
                 $contact = null;
                 if ($participant['jid'] !== '') {

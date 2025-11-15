@@ -108,9 +108,7 @@ class WhatsappGroup
     {
         foreach ($this->getMembers() as $member) {
             if ($member->getLid() === $lid) {
-                if ($contact) {
-                    $member->setContact($contact);
-                }
+                $member->setContact($contact);
                 $member->setIsAdmin($isAdmin);
                 $member->setIsSuperAdmin($isSuperAdmin);
                 return;

@@ -143,7 +143,7 @@ class WhatsappRepository extends MysqlRepository
             $this->insert('whatsapp_group_member', [
                 'group_id' => $group->getId(),
                 'lid' => $member->getLid(),
-                'contact_id' => $member->getContact()->getId(),
+                'contact_id' => $member->getContact()?->getId(),
                 'is_admin' => $member->isAdmin() ? 1 : 0,
                 'is_super_admin' => $member->isSuperAdmin() ? 1 : 0,
             ]);
