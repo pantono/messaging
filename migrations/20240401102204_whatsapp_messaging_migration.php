@@ -65,7 +65,7 @@ final class WhatsappMessagingMigration extends AbstractMigration
 
         $this->table('whatsapp_group_member', ['id' => false])
             ->addColumn('group_id', 'integer', ['signed' => false])
-            ->addColumn('contact_id', 'integer', ['signed' => false])
+            ->addColumn('contact_id', 'integer', ['signed' => false, 'null' => true])
             ->addColumn('is_admin', 'boolean', ['default' => false])
             ->addColumn('is_super_admin', 'boolean', ['default' => false])
             ->addColumn('lid', 'string', ['null' => false])
