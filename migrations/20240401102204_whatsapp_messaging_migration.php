@@ -72,7 +72,7 @@ final class WhatsappMessagingMigration extends AbstractMigration
             ->addIndex(['group_id', 'contact_id'], ['unique' => true])
             ->addForeignKey('group_id', 'whatsapp_group', 'id')
             ->addForeignKey('contact_id', 'whatsapp_contact', 'id')
-            ->addIndex('lid')
+            ->addIndex('lid', ['unique' => true])
             ->create();
 
         $this->table('whatsapp_message')
