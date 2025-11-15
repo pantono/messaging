@@ -57,7 +57,7 @@ final class WhatsappMessagingMigration extends AbstractMigration
             ->addColumn('instance_id', 'integer', ['signed' => false])
             ->addColumn('group_id', 'string', ['signed' => false])
             ->addColumn('subject', 'string')
-            ->addColumn('owner_id', 'string')
+            ->addColumn('owner_id', 'string', ['null' => true])
             ->addColumn('description', 'string', ['null' => true])
             ->addIndex('group_id', ['unique' => true])
             ->addForeignKey('instance_id', 'whatsapp_instance', 'id')
