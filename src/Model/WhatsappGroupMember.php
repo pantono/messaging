@@ -11,7 +11,7 @@ class WhatsappGroupMember
 {
     private ?int $id = null;
     private int $groupId;
-    private int $contactId;
+    private ?int $contactId = null;
     #[Locator(methodName: 'getContactById', className: Whatsapp::class), FieldName('contact_id'), Lazy]
     private ?WhatsappContact $contact = null;
     private string $lid;
@@ -38,22 +38,22 @@ class WhatsappGroupMember
         $this->groupId = $groupId;
     }
 
-    public function getContactId(): int
+    public function getContactId(): ?int
     {
         return $this->contactId;
     }
 
-    public function setContactId(int $contactId): void
+    public function setContactId(?int $contactId): void
     {
         $this->contactId = $contactId;
     }
 
-    public function getContact(): WhatsappContact
+    public function getContact(): ?WhatsappContact
     {
         return $this->contact;
     }
 
-    public function setContact(WhatsappContact $contact): void
+    public function setContact(?WhatsappContact $contact): void
     {
         $this->contact = $contact;
     }

@@ -6,13 +6,13 @@ use Pantono\Messaging\Event\Wasender\WasenderWebhookProcess;
 use Pantono\Messaging\Model\Wasender\WasenderWebhook;
 use Pantono\Messaging\Model\WhatsappContact;
 use Pantono\Messaging\Model\WhatsappGroup;
-use Pantono\Messaging\Model\WhatsappGroupMember;
 use Pantono\Messaging\Model\WhatsappInstance;
 use Pantono\Messaging\Model\WhatsappMessage;
 use Pantono\Messaging\Model\WhatsappMessageType;
 use Pantono\Messaging\Service\WasenderService;
 use Pantono\Messaging\Utility\Wasender\DecryptWasenderMediaFile;
 use Pantono\Messaging\Whatsapp;
+use Pantono\Queue\QueueManager;
 use Pantono\Storage\FileStorage;
 use Pantono\Storage\Model\StoredFile;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -23,12 +23,14 @@ class WasenderMessageEvents implements EventSubscriberInterface
     private Whatsapp $whatsapp;
     private FileStorage $fileStorage;
     private WasenderService $service;
+    private QueueManager $queueManager;
 
-    public function __construct(Whatsapp $whatsapp, FileStorage $fileStorage, WasenderService $service)
+    public function __construct(Whatsapp $whatsapp, FileStorage $fileStorage, WasenderService $service, QueueManager $queueManager)
     {
         $this->whatsapp = $whatsapp;
         $this->fileStorage = $fileStorage;
         $this->service = $service;
+        $this->queueManager = $queueManager;
     }
 
     public static function getSubscribedEvents(): array
@@ -44,27 +46,20 @@ class WasenderMessageEvents implements EventSubscriberInterface
 
     public function processGroupUpdate(WasenderWebhookProcess $event): void
     {
-        if ($event->getWebhook()->getEvent() === 'groups.upsert') {
+        if ($event->getWebhook()->getEvent() === 'chats.upsert') {
             $instance = $this->getInstanceFromHook($event);
-            $this->service->setInstance($instance);
-            foreach ($this->service->getAllGroups() as $group) {
-                $groupData = $this->service->getGroupMetadata($group['id']);
-                if ($groupData['success'] === true) {
-                    $groupResponse = new ParameterBag($groupData['data']);
-                    $groupModel = $this->whatsapp->getGroupByWhatsappId($instance, $group['id']);
+            $groupData = $event->getWebhook()->getDataObject()['chats'] ?? [];
+            if (is_array($groupData)) {
+                foreach ($groupData as $group) {
+                    $groupId = $group['id'] ?? null;
+                    $groupModel = $this->whatsapp->getGroupByWhatsappId($instance, $groupId);
                     if (!$groupModel) {
                         $groupModel = new WhatsappGroup();
-                        $groupModel->setInstanceId($instance->getId());
-                        $groupModel->setGroupId($groupResponse->get('id'));
-                        $groupModel->setSubject($groupResponse->get('subject'));
-                        $groupModel->setOwnerId($groupResponse->get('ownerJid'));
-                        $groupModel->setDescription('');
+                        $groupModel->setSubject($group['name']);
+                        $groupModel->setId($groupId);
+                        $this->whatsapp->saveGroup($groupModel);
+                        $this->queueManager->createTask('wasender_update_group', ['id' => $groupId, 'instance_id' => $instance->getId()]);
                     }
-                    foreach ($groupResponse->get('participants', []) as $participant) {
-                        $contact = $this->createOrUpdateContact($instance, $participant['id']);
-                        $groupModel->addMember($contact, $participant['lid'], $participant['admin'] === 'admin', $participant['admin'] === 'superadmin');
-                    }
-                    $this->whatsapp->saveGroup($groupModel);
                 }
             }
         }
@@ -89,6 +84,8 @@ class WasenderMessageEvents implements EventSubscriberInterface
     public function processContactUpdate(WasenderWebhookProcess $event): void
     {
         $hook = $event->getWebhook();
+        if ($hook->getEvent() === 'contacts.upsert') {
+        }
         if ($hook->getEvent() === 'contacts.update') {
             $instance = $this->getInstanceFromHook($event);
 

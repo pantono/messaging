@@ -16,7 +16,7 @@ class WhatsappGroup
     private int $instanceId;
     private string $groupId;
     private string $subject;
-    private string $ownerId;
+    private ?string $ownerId = null;
     private ?string $description = null;
     /**
      * @var WhatsappGroupMember[]
@@ -104,11 +104,13 @@ class WhatsappGroup
         return false;
     }
 
-    public function addMember(WhatsappContact $contact, string $lid, bool $isAdmin = false, bool $isSuperAdmin = false): void
+    public function addMember(?WhatsappContact $contact, string $lid, bool $isAdmin = false, bool $isSuperAdmin = false): void
     {
         foreach ($this->getMembers() as $member) {
-            if ($member->getContact()->getId() === $contact->getId()) {
-                $member->setLid($lid);
+            if ($member->getLid() === $lid) {
+                if ($contact) {
+                    $member->setContact($contact);
+                }
                 $member->setIsAdmin($isAdmin);
                 $member->setIsSuperAdmin($isSuperAdmin);
                 return;
