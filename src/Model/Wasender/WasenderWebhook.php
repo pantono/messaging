@@ -151,7 +151,11 @@ class WasenderWebhook
             throw new \RuntimeException('Webhook is not a message');
         }
         $data = $this->getData();
-        return $data['data']['messages']['remoteJid'] ?? null;
+        $jid = $data['data']['messages']['remoteJid'];
+        if (str_ends_with($jid, '@s.whatsapp.net')) {
+            return $jid;
+        }
+        return $this->getKey()->get('participantPn');
     }
 
     public function isProcessed(): bool
