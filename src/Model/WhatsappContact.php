@@ -7,7 +7,7 @@ use Pantono\Contracts\Attributes\Locator;
 use Pantono\Database\Traits\SavableModel;
 use Pantono\Messaging\Whatsapp;
 
-#[Locator(className: Whatsapp::class, methodName: 'getContactById')]
+#[Locator(methodName: 'getContactById', className: Whatsapp::class)]
 class WhatsappContact
 {
     use SavableModel;
@@ -16,7 +16,7 @@ class WhatsappContact
     #[FieldName('instance_id'), Locator(methodName: 'getInstanceById', className: Whatsapp::class)]
     private WhatsappInstance $instance;
     private string $whatsappId;
-    private string $name;
+    private ?string $name = null;
     private string $status;
     private bool $online;
 
@@ -50,12 +50,12 @@ class WhatsappContact
         $this->whatsappId = $whatsappId;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }
