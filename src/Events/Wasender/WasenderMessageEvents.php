@@ -147,6 +147,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
         $fromContact = $this->whatsapp->createOrUpdateContact($instance, $hook->getFromId(), $hook->getFromName());
         $data = $hook->getMessageObject();
         $containerData = $hook->getMessageData();
+        $this->whatsapp->acquireMessageLock($containerData->get('id'));
         $this->whatsapp->startTransaction();
         $message = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $containerData->get('id'));
         if ($message === null) {
@@ -175,7 +176,6 @@ class WasenderMessageEvents implements EventSubscriberInterface
         $message->setContact($fromContact);
         $message->setMeta($hook->getMessageObject()->all());
         $message->setStatus('received');
-        $messageObject = null;
         if ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_TEXT) {
             if ($data->has('extendedTextMessage')) {
                 $replyContext = new ParameterBag($data->get('extendedTextMessage', []));
@@ -229,6 +229,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
         }
 
         $this->whatsapp->endTransaction();
+        $this->whatsapp->releaseMessageLock($containerData->get('id'));
         return $message;
     }
 
