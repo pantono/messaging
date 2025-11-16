@@ -216,11 +216,11 @@ class Whatsapp
             $contact->setWhatsappId($id);
             $contact->setStatus('unknown');
             $contact->setOnline(false);
-            $this->saveContact($contact);
         }
         if ($name) {
             $contact->setName($name);
         }
+        $this->saveContact($contact);
         $this->endTransaction();
         return $contact;
     }
