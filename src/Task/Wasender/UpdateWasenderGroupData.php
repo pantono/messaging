@@ -2,7 +2,6 @@
 
 namespace Pantono\Messaging\Task\Wasender;
 
-use Pantono\Messaging\Model\WhatsappContact;
 use Pantono\Messaging\Model\WhatsappGroup;
 use Pantono\Messaging\Model\WhatsappInstance;
 use Pantono\Messaging\Service\WasenderService;
