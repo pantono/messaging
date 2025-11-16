@@ -92,7 +92,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
                 $id = $contactData['id'] ?? null;
                 $name = $contactData['notify'] ?? null;
                 if ($id && $name) {
-                    $this->createOrUpdateContact($instance, $id, $name);
+                    $this->whatsapp->createOrUpdateContact($instance, $id, $name);
                 }
             }
             $event->setProcessed(true);
@@ -138,33 +138,13 @@ class WasenderMessageEvents implements EventSubscriberInterface
         return null;
     }
 
-    private function createOrUpdateContact(WhatsappInstance $instance, string $id, ?string $name = ''): WhatsappContact
-    {
-        if ($name === null) {
-            $name = '';
-        }
-        $this->whatsapp->startTransaction();
-        $contact = $this->whatsapp->getContactByWhatsappId($instance, $id);
-        if (!$contact) {
-            $contact = new WhatsappContact();
-            $contact->setInstance($instance);
-            $contact->setWhatsappId($id);
-            $contact->setStatus('unknown');
-            $contact->setOnline(false);
-            $this->whatsapp->saveContact($contact);
-        }
-        $contact->setName($name);
-        $this->whatsapp->endTransaction();
-        return $contact;
-    }
-
     private function createMessageFromWebhook(WhatsappInstance $instance, WasenderWebhook $hook): ?WhatsappMessage
     {
         $type = $this->getMessageTypeFromWebhook($hook);
         if (!$type) {
             return null;
         }
-        $fromContact = $this->createOrUpdateContact($instance, $hook->getFromId(), $hook->getFromName());
+        $fromContact = $this->whatsapp->createOrUpdateContact($instance, $hook->getFromId(), $hook->getFromName());
         $data = $hook->getMessageObject();
         $containerData = $hook->getMessageData();
         $this->whatsapp->startTransaction();

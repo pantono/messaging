@@ -54,31 +54,11 @@ class UpdateWasenderGroupData extends AbstractTask
             foreach ($groupResponse->get('participants', []) as $participant) {
                 $contact = null;
                 if ($participant['jid'] !== '') {
-                    $contact = $this->createOrUpdateContact($instance, $participant['jid']);
+                    $contact = $this->whatsapp->createOrUpdateContact($instance, $participant['jid']);
                 }
                 $groupModel->addMember($contact, $participant['lid'], $participant['admin'] === 'admin', $participant['admin'] === 'superadmin');
             }
             $this->whatsapp->saveGroup($groupModel);
         }
-    }
-
-    private function createOrUpdateContact(WhatsappInstance $instance, string $id, ?string $name = ''): WhatsappContact
-    {
-        if ($name === null) {
-            $name = '';
-        }
-        $this->whatsapp->startTransaction();
-        $contact = $this->whatsapp->getContactByWhatsappId($instance, $id);
-        if (!$contact) {
-            $contact = new WhatsappContact();
-            $contact->setInstance($instance);
-            $contact->setWhatsappId($id);
-            $contact->setStatus('unknown');
-            $contact->setOnline(false);
-            $this->whatsapp->saveContact($contact);
-        }
-        $contact->setName($name);
-        $this->whatsapp->endTransaction();
-        return $contact;
     }
 }

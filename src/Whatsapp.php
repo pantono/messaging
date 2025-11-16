@@ -205,4 +205,23 @@ class Whatsapp
     {
         $this->repository->releaseLock($messageId);
     }
+
+    public function createOrUpdateContact(WhatsappInstance $instance, string $id, ?string $name = ''): WhatsappContact
+    {
+        $this->startTransaction();
+        $contact = $this->getContactByWhatsappId($instance, $id);
+        if (!$contact) {
+            $contact = new WhatsappContact();
+            $contact->setInstance($instance);
+            $contact->setWhatsappId($id);
+            $contact->setStatus('unknown');
+            $contact->setOnline(false);
+            $this->saveContact($contact);
+        }
+        if ($name) {
+            $contact->setName($name);
+        }
+        $this->endTransaction();
+        return $contact;
+    }
 }
