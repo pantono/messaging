@@ -73,11 +73,11 @@ class UpdateWasenderGroupData extends AbstractTask
             $contact = new WhatsappContact();
             $contact->setInstance($instance);
             $contact->setWhatsappId($id);
-            $contact->setName($name);
             $contact->setStatus('unknown');
             $contact->setOnline(false);
             $this->whatsapp->saveContact($contact);
         }
+        $contact->setName($name);
         $this->whatsapp->endTransaction();
         return $contact;
     }

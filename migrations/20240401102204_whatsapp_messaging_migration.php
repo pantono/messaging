@@ -89,6 +89,7 @@ final class WhatsappMessagingMigration extends AbstractMigration
             ->addColumn('file_id', 'integer', ['null' => true, 'signed' => false])
             ->addColumn('reply_to', 'string', ['null' => true, 'signed' => false])
             ->addColumn('status', 'string', ['null' => true])
+            ->addColumn('mentions', 'json')
             ->addIndex('message_id', ['unique' => true])
             ->addForeignKey('instance_id', 'whatsapp_instance', 'id')
             ->addForeignKey('type_id', 'whatsapp_message_type', 'id')

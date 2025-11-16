@@ -9,7 +9,6 @@ use Pantono\Messaging\Model\WhatsappGroup;
 use Pantono\Messaging\Model\WhatsappInstance;
 use Pantono\Messaging\Model\WhatsappMessage;
 use Pantono\Messaging\Model\WhatsappMessageType;
-use Pantono\Messaging\Service\WasenderService;
 use Pantono\Messaging\Utility\Wasender\DecryptWasenderMediaFile;
 use Pantono\Messaging\Whatsapp;
 use Pantono\Queue\QueueManager;
@@ -22,14 +21,12 @@ class WasenderMessageEvents implements EventSubscriberInterface
 {
     private Whatsapp $whatsapp;
     private FileStorage $fileStorage;
-    private WasenderService $service;
     private QueueManager $queueManager;
 
-    public function __construct(Whatsapp $whatsapp, FileStorage $fileStorage, WasenderService $service, QueueManager $queueManager)
+    public function __construct(Whatsapp $whatsapp, FileStorage $fileStorage, QueueManager $queueManager)
     {
         $this->whatsapp = $whatsapp;
         $this->fileStorage = $fileStorage;
-        $this->service = $service;
         $this->queueManager = $queueManager;
     }
 
@@ -85,8 +82,6 @@ class WasenderMessageEvents implements EventSubscriberInterface
     public function processContactUpdate(WasenderWebhookProcess $event): void
     {
         $hook = $event->getWebhook();
-        if ($hook->getEvent() === 'contacts.upsert') {
-        }
         if ($hook->getEvent() === 'contacts.update') {
             $instance = $this->getInstanceFromHook($event);
 
@@ -137,6 +132,9 @@ class WasenderMessageEvents implements EventSubscriberInterface
         if ($messageObject->has('audioMessage')) {
             return $this->whatsapp->getMessageTypeById(Whatsapp::MESSAGE_TYPE_AUDIO);
         }
+        if ($messageObject->has('reactionMessage')) {
+            return $this->whatsapp->getMessageTypeById(Whatsapp::MESSAGE_TYPE_REACTION);
+        }
         return null;
     }
 
@@ -151,11 +149,11 @@ class WasenderMessageEvents implements EventSubscriberInterface
             $contact = new WhatsappContact();
             $contact->setInstance($instance);
             $contact->setWhatsappId($id);
-            $contact->setName($name);
             $contact->setStatus('unknown');
             $contact->setOnline(false);
             $this->whatsapp->saveContact($contact);
         }
+        $contact->setName($name);
         $this->whatsapp->endTransaction();
         return $contact;
     }

@@ -43,6 +43,11 @@ class WhatsappMessage
     #[Locator(methodName: 'getMessageById', className: Whatsapp::class), Lazy, FieldName('reply_to')]
     private ?WhatsappMessage $replyToMessage = null;
     private ?string $status = null;
+    /**
+     * @var array<int,string>
+     */
+    #[Filter('json_decode')]
+    private array $mentions = [];
 
     public function getId(): ?int
     {
@@ -194,7 +199,18 @@ class WhatsappMessage
         $this->status = $status;
     }
 
-    public function isMentioned(string $phoneNumber)
+    public function getMentions(): array
     {
+        return $this->mentions;
+    }
+
+    public function setMentions(array $mentions): void
+    {
+        $this->mentions = $mentions;
+    }
+
+    public function isMentioned(string $phoneNumber): bool
+    {
+        return in_array($phoneNumber, $this->mentions);
     }
 }
