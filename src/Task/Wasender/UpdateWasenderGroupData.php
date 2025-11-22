@@ -52,7 +52,7 @@ class UpdateWasenderGroupData extends AbstractTask
             $groupModel->setDescription($groupResponse->get('desc'));
             foreach ($groupResponse->get('participants', []) as $participant) {
                 $contact = null;
-                if ($participant['jid'] !== '') {
+                if ($participant['jid'] !== '' && $participant['jid'] !== null) {
                     $contact = $this->whatsapp->createOrUpdateContact($instance, $participant['jid']);
                 }
                 $groupModel->addMember($contact, $participant['lid'], $participant['admin'] === 'admin', $participant['admin'] === 'superadmin');
