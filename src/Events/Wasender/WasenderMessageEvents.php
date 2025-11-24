@@ -140,116 +140,123 @@ class WasenderMessageEvents implements EventSubscriberInterface
 
     private function createMessageFromWebhook(WhatsappInstance $instance, WasenderWebhook $hook, int $attempt = 1): ?WhatsappMessage
     {
-        $type = $this->getMessageTypeFromWebhook($hook);
-        if (!$type) {
-            return null;
-        }
-        $fromContact = $this->whatsapp->createOrUpdateContact($instance, $hook->getFromId(), $hook->getFromName());
-        $data = $hook->getMessageObject();
-        $containerData = $hook->getMessageData();
-        $message = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $containerData->get('id'));
-        if ($message === null) {
-            $message = new WhatsappMessage();
-        }
-        $message->setMessageId($containerData->get('id'));
-        $message->setInstanceId($instance->getId());
-        if ($containerData->has('messageTimestamp')) {
-            $ts = $containerData->get('messageTimestamp');
-            if (is_array($containerData->get('messageTimestamp'))) {
-                $ts = $containerData->get('messageTimestamp')['low'];
+        try {
+            $type = $this->getMessageTypeFromWebhook($hook);
+            if (!$type) {
+                return null;
             }
-            $message->setDate(\DateTimeImmutable::createFromFormat('U', $ts));
-        } else {
-            $message->setDate(new \DateTimeImmutable());
-        }
-        $keyParams = new ParameterBag($containerData->get('key', []));
-
-        $message->setIncoming(true);
-        if ($keyParams->has('fromMe')) {
-            if ($keyParams->get('fromMe') === true) {
-                $message->setIncoming(false);
-            }
-        }
-        $message->setType($type);
-        $message->setContact($fromContact);
-        $message->setMeta($hook->getMessageObject()->all());
-        $message->setStatus('received');
-        if ($hook->getGroupId()) {
-            $group = $this->whatsapp->getGroupByWhatsappId($instance, $hook->getGroupId());
-            if ($group === null) {
-                $group = new WhatsappGroup();
-                $group->setInstanceId($instance->getId());
-                $group->setGroupId($hook->getGroupId());
-                $this->whatsapp->saveGroup($group);
-            }
-            $message->setGroup($group);
-        }
-        $parentId = $hook->getParentId();
-        if ($parentId) {
-            $message = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $parentId);
+            $fromContact = $this->whatsapp->createOrUpdateContact($instance, $hook->getFromId(), $hook->getFromName());
+            $data = $hook->getMessageObject();
+            $containerData = $hook->getMessageData();
+            $this->whatsapp->startTransaction();
+            $message = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $containerData->get('id'));
             if ($message === null) {
-                sleep(1);
-                if ($attempt > 5) {
-                    throw new \RuntimeException('Could not find parent message: ' . $parentId);
+                $message = new WhatsappMessage();
+            }
+            $message->setMessageId($containerData->get('id'));
+            $message->setInstanceId($instance->getId());
+            if ($containerData->has('messageTimestamp')) {
+                $ts = $containerData->get('messageTimestamp');
+                if (is_array($containerData->get('messageTimestamp'))) {
+                    $ts = $containerData->get('messageTimestamp')['low'];
                 }
-                return $this->createMessageFromWebhook($instance, $hook, $attempt + 1);
-            }
-            $message->setParentId($parentId);
-            $message->setParentMessage($message);
-        }
-        if ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_TEXT) {
-            if ($data->has('extendedTextMessage')) {
-                $replyContext = new ParameterBag($data->get('extendedTextMessage', []));
-                $text = $replyContext->get('text');
-                $context = $replyContext->get('contextInfo', []);
-                $replyTo = $context['stanzaId'] ?? null;
-                if ($replyTo) {
-                    $replyMessage = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $replyTo);
-                    if ($replyMessage) {
-                        $message->setReplyToMessage($replyMessage);
-                        $message->setReplyTo($replyTo);
-                    }
-                }
+                $message->setDate(\DateTimeImmutable::createFromFormat('U', $ts));
             } else {
-                $text = $data->get('conversation', '');
+                $message->setDate(new \DateTimeImmutable());
             }
-            $message->setTextContent($text);
-        } elseif ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_IMAGE) {
-            $messageObject = new ParameterBag($data->get('imageMessage', []));
-            if ($messageObject->has('caption')) {
-                $message->setTextContent($messageObject->get('caption'));
-            } else {
-                $message->setTextContent('');
-            }
-            $file = $this->getFileFromMessageObject($data);
-            if ($file) {
-                $message->setFile($file);
-            }
-        } elseif ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_STICKER) {
-            $messageObject = new ParameterBag($data->get('stickerMessage', []));
-            if ($messageObject->has('caption')) {
-                $message->setTextContent($messageObject->get('caption'));
-            } else {
-                $message->setTextContent('');
-            }
-            $file = $this->getFileFromMessageObject($data);
-            if ($file) {
-                $message->setFile($file);
-            }
-        } elseif ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_AUDIO) {
-            $messageObject = new ParameterBag($data->get('audioMessage', []));
-            if ($messageObject->has('caption')) {
-                $message->setTextContent($messageObject->get('caption'));
-            } else {
-                $message->setTextContent('');
-            }
-            $file = $this->getFileFromMessageObject($data);
-            if ($file) {
-                $message->setFile($file);
-            }
-        }
+            $keyParams = new ParameterBag($containerData->get('key', []));
 
-        return $message;
+            $message->setIncoming(true);
+            if ($keyParams->has('fromMe')) {
+                if ($keyParams->get('fromMe') === true) {
+                    $message->setIncoming(false);
+                }
+            }
+            $message->setType($type);
+            $message->setContact($fromContact);
+            $message->setMeta($hook->getMessageObject()->all());
+            $message->setStatus('received');
+            if ($hook->getGroupId()) {
+                $group = $this->whatsapp->getGroupByWhatsappId($instance, $hook->getGroupId());
+                if ($group === null) {
+                    $group = new WhatsappGroup();
+                    $group->setInstanceId($instance->getId());
+                    $group->setGroupId($hook->getGroupId());
+                    $this->whatsapp->saveGroup($group);
+                }
+                $message->setGroup($group);
+            }
+            $parentId = $hook->getParentId();
+            if ($parentId) {
+                $message = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $parentId);
+                if ($message === null) {
+                    sleep(1);
+                    if ($attempt > 5) {
+                        throw new \RuntimeException('Could not find parent message: ' . $parentId);
+                    }
+                    return $this->createMessageFromWebhook($instance, $hook, $attempt + 1);
+                }
+                $message->setParentId($parentId);
+                $message->setParentMessage($message);
+            }
+            if ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_TEXT) {
+                if ($data->has('extendedTextMessage')) {
+                    $replyContext = new ParameterBag($data->get('extendedTextMessage', []));
+                    $text = $replyContext->get('text');
+                    $context = $replyContext->get('contextInfo', []);
+                    $replyTo = $context['stanzaId'] ?? null;
+                    if ($replyTo) {
+                        $replyMessage = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $replyTo);
+                        if ($replyMessage) {
+                            $message->setReplyToMessage($replyMessage);
+                            $message->setReplyTo($replyTo);
+                        }
+                    }
+                } else {
+                    $text = $data->get('conversation', '');
+                }
+                $message->setTextContent($text);
+            } elseif ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_IMAGE) {
+                $messageObject = new ParameterBag($data->get('imageMessage', []));
+                if ($messageObject->has('caption')) {
+                    $message->setTextContent($messageObject->get('caption'));
+                } else {
+                    $message->setTextContent('');
+                }
+                $file = $this->getFileFromMessageObject($data);
+                if ($file) {
+                    $message->setFile($file);
+                }
+            } elseif ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_STICKER) {
+                $messageObject = new ParameterBag($data->get('stickerMessage', []));
+                if ($messageObject->has('caption')) {
+                    $message->setTextContent($messageObject->get('caption'));
+                } else {
+                    $message->setTextContent('');
+                }
+                $file = $this->getFileFromMessageObject($data);
+                if ($file) {
+                    $message->setFile($file);
+                }
+            } elseif ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_AUDIO) {
+                $messageObject = new ParameterBag($data->get('audioMessage', []));
+                if ($messageObject->has('caption')) {
+                    $message->setTextContent($messageObject->get('caption'));
+                } else {
+                    $message->setTextContent('');
+                }
+                $file = $this->getFileFromMessageObject($data);
+                if ($file) {
+                    $message->setFile($file);
+                }
+            }
+
+            $this->whatsapp->endTransaction();
+            return $message;
+        } catch (\Exception $e) {
+            $this->whatsapp->endTransaction();
+            throw $e;
+        }
     }
 
     private function getFileFromMessageObject(ParameterBag $messageObject): ?StoredFile
