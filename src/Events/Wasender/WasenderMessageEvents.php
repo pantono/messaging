@@ -78,8 +78,9 @@ class WasenderMessageEvents implements EventSubscriberInterface
                     if (str_contains($e->getMessage(), 'Deadlock')) {
                         sleep(1);
                         $this->whatsapp->saveMessage($message);
+                    } else {
+                        throw $e;
                     }
-                    throw $e;
                 }
                 $event->setProcessed(true);
             }
