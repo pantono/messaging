@@ -145,6 +145,19 @@ class WasenderWebhook
         return $data['data']['messages']['pushName'] ?? null;
     }
 
+    public function getGroupId(): ?string
+    {
+        if (!$this->isMessageHook()) {
+            throw new \RuntimeException('Webhook is not a message');
+        }
+        $data = $this->getData();
+        $jid = $data['data']['messages']['remoteJid'];
+        if (str_ends_with($jid, '@g.us')) {
+            return $jid;
+        }
+        return null;
+    }
+
     public function getFromId(): ?string
     {
         if (!$this->isMessageHook()) {

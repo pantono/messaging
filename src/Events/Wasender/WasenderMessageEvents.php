@@ -175,6 +175,16 @@ class WasenderMessageEvents implements EventSubscriberInterface
         $message->setContact($fromContact);
         $message->setMeta($hook->getMessageObject()->all());
         $message->setStatus('received');
+        if ($hook->getGroupId()) {
+            $group = $this->whatsapp->getGroupByWhatsappId($instance, $hook->getGroupId());
+            if ($group === null) {
+                $group = new WhatsappGroup();
+                $group->setInstanceId($instance->getId());
+                $group->setGroupId($hook->getGroupId());
+                $this->whatsapp->saveGroup($group);
+            }
+            $message->setGroup($group);
+        }
         if ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_TEXT) {
             if ($data->has('extendedTextMessage')) {
                 $replyContext = new ParameterBag($data->get('extendedTextMessage', []));
