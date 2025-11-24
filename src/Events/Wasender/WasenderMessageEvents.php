@@ -72,7 +72,15 @@ class WasenderMessageEvents implements EventSubscriberInterface
             $instance = $this->getInstanceFromHook($event);
             $message = $this->createMessageFromWebhook($instance, $hook);
             if ($message) {
-                $this->whatsapp->saveMessage($message);
+                try {
+                    $this->whatsapp->saveMessage($message);
+                } catch (\Exception $e) {
+                    if (str_contains($e->getMessage(), 'Deadlock')) {
+                        sleep(1);
+                        $this->whatsapp->saveMessage($message);
+                    }
+                    throw $e;
+                }
                 $event->setProcessed(true);
             }
             $this->whatsapp->releaseMessageLock($id);
