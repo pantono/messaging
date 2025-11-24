@@ -187,7 +187,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
                 $message->setGroup($group);
             }
             $parentId = $hook->getParentId();
-            if ($parentId) {
+            if ($parentId && $parentId !== $message->getMessageId()) {
                 $parentMessage = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $parentId);
                 if ($parentMessage === null) {
                     sleep(1);
