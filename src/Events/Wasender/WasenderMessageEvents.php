@@ -138,7 +138,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
         return null;
     }
 
-    private function createMessageFromWebhook(WhatsappInstance $instance, WasenderWebhook $hook): ?WhatsappMessage
+    private function createMessageFromWebhook(WhatsappInstance $instance, WasenderWebhook $hook, int $attempt = 1): ?WhatsappMessage
     {
         $type = $this->getMessageTypeFromWebhook($hook);
         if (!$type) {
@@ -184,6 +184,19 @@ class WasenderMessageEvents implements EventSubscriberInterface
                 $this->whatsapp->saveGroup($group);
             }
             $message->setGroup($group);
+        }
+        $parentId = $hook->getParentId();
+        if ($parentId) {
+            $message = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $parentId);
+            if ($message === null) {
+                sleep(1);
+                if ($attempt > 5) {
+                    throw new \RuntimeException('Could not find parent message: ' . $parentId);
+                }
+                return $this->createMessageFromWebhook($instance, $hook, $attempt + 1);
+            }
+            $message->setParentId($parentId);
+            $message->setParentMessage($message);
         }
         if ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_TEXT) {
             if ($data->has('extendedTextMessage')) {

@@ -6,6 +6,7 @@ use Pantono\Contracts\Attributes\FieldName;
 use Pantono\Contracts\Attributes\Filter;
 use Pantono\Contracts\Attributes\Lazy;
 use Pantono\Contracts\Attributes\Locator;
+use Pantono\Contracts\Attributes\NoSave;
 use Pantono\Database\Traits\SavableModel;
 use Pantono\Images\Images;
 use Pantono\Images\Model\Image;
@@ -35,8 +36,9 @@ class WhatsappMessage
      */
     #[Filter('json_decode')]
     private array $meta;
-    #[Locator(methodName: 'getMessageById', className: Whatsapp::class), Lazy, FieldName('parent_id')]
-    private ?WhatsappMessage $parentId = null;
+    #[Locator(methodName: 'getMessageById', className: Whatsapp::class), Lazy, FieldName('parent_id'), NoSave]
+    private ?WhatsappMessage $parentMessage = null;
+    private ?string $parentId = null;
     #[Locator(methodName: 'getFileById', className: FileStorage::class), Lazy, FieldName('file_id')]
     private ?StoredFile $file = null;
     private ?string $replyTo = null;
@@ -149,12 +151,22 @@ class WhatsappMessage
         $this->meta = $meta;
     }
 
-    public function getParentId(): ?WhatsappMessage
+    public function getParentMessage(): ?WhatsappMessage
+    {
+        return $this->parentMessage;
+    }
+
+    public function setParentMessage(?WhatsappMessage $parentMessage): void
+    {
+        $this->parentMessage = $parentMessage;
+    }
+
+    public function getParentId(): ?string
     {
         return $this->parentId;
     }
 
-    public function setParentId(?WhatsappMessage $parentId): void
+    public function setParentId(?string $parentId): void
     {
         $this->parentId = $parentId;
     }

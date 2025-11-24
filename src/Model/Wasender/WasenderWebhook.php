@@ -171,6 +171,19 @@ class WasenderWebhook
         return $this->getKey()->get('participantPn');
     }
 
+    public function getParentId(): ?string
+    {
+        $context = new ParameterBag($this->getMessageObject()->get('messageContextInfo', []));
+
+        if ($context->has('messageAssociation')) {
+            $parentKey = $context->get('messageAssociation')['parentMessageKey'] ?? null;
+            if ($parentKey) {
+                return $parentKey['id'] ?? null;
+            }
+        }
+        return null;
+    }
+
     public function isProcessed(): bool
     {
         return $this->processed;
