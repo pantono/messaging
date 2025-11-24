@@ -147,7 +147,6 @@ class WasenderMessageEvents implements EventSubscriberInterface
         $fromContact = $this->whatsapp->createOrUpdateContact($instance, $hook->getFromId(), $hook->getFromName());
         $data = $hook->getMessageObject();
         $containerData = $hook->getMessageData();
-        $this->whatsapp->startTransaction();
         $message = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $containerData->get('id'));
         if ($message === null) {
             $message = new WhatsappMessage();
