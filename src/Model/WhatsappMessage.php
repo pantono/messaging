@@ -42,7 +42,7 @@ class WhatsappMessage
     #[Locator(methodName: 'getFileById', className: FileStorage::class), Lazy, FieldName('file_id')]
     private ?StoredFile $file = null;
     private ?string $replyTo = null;
-    #[Locator(methodName: 'getMessageById', className: Whatsapp::class), Lazy, FieldName('reply_to')]
+    #[Locator(methodName: 'getMessageById', className: Whatsapp::class), Lazy, FieldName('reply_to'), NoSave]
     private ?WhatsappMessage $replyToMessage = null;
     private ?string $status = null;
     /**
