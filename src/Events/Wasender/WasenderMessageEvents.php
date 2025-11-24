@@ -215,7 +215,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
                     $context = $replyContext->get('contextInfo', []);
                     $replyTo = $context['stanzaId'] ?? null;
                     if ($replyTo) {
-                        $replyMessage = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $replyTo);
+                        $replyMessage = $this->getReplyToMessageWait($instance->getId(), $replyTo);
                         if ($replyMessage) {
                             $message->setReplyToMessage($replyMessage);
                             $message->setReplyTo($replyTo);
@@ -232,7 +232,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
                     $reactionKey = new ParameterBag($reaction->get('key', []));
                     if ($reactionKey->has('id')) {
                         $replyToId = $reactionKey->get('id');
-                        $replyToMessage = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $replyToId);
+                        $replyToMessage = $this->getReplyToMessageWait($instance->getId(), $replyToId);
                         if ($replyToMessage) {
                             $message->setReplyTo($replyToId);
                             $message->setReplyToMessage($replyToMessage);
@@ -302,5 +302,18 @@ class WasenderMessageEvents implements EventSubscriberInterface
             throw new \RuntimeException('No instance available from api key or default settings');
         }
         return $instance;
+    }
+
+    private function getReplyToMessageWait(int $instanceId, string $replyToId, int $attempt = 0): ?WhatsappMessage
+    {
+        $replyToMessage = $this->whatsapp->getMessageByWhatsappId($instanceId, $replyToId);
+        if ($replyToMessage === null) {
+            if ($attempt > 5) {
+                return null;
+            }
+            sleep(1);
+            return $this->getReplyToMessageWait($instanceId, $replyToId, $attempt + 1);
+        }
+        return $replyToMessage;
     }
 }
