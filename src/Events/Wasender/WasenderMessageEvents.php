@@ -140,15 +140,15 @@ class WasenderMessageEvents implements EventSubscriberInterface
 
     private function createMessageFromWebhook(WhatsappInstance $instance, WasenderWebhook $hook, int $attempt = 1): ?WhatsappMessage
     {
+        $type = $this->getMessageTypeFromWebhook($hook);
+        if (!$type) {
+            return null;
+        }
+        $fromContact = $this->whatsapp->createOrUpdateContact($instance, $hook->getFromId(), $hook->getFromName());
+        $data = $hook->getMessageObject();
+        $containerData = $hook->getMessageData();
+        $this->whatsapp->startTransaction();
         try {
-            $type = $this->getMessageTypeFromWebhook($hook);
-            if (!$type) {
-                return null;
-            }
-            $fromContact = $this->whatsapp->createOrUpdateContact($instance, $hook->getFromId(), $hook->getFromName());
-            $data = $hook->getMessageObject();
-            $containerData = $hook->getMessageData();
-            $this->whatsapp->startTransaction();
             $message = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $containerData->get('id'));
             if ($message === null) {
                 $message = new WhatsappMessage();
