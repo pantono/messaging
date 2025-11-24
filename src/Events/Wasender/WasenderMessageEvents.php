@@ -249,7 +249,6 @@ class WasenderMessageEvents implements EventSubscriberInterface
             }
         }
 
-        $this->whatsapp->endTransaction();
         return $message;
     }
 
