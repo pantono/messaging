@@ -225,6 +225,20 @@ class WasenderMessageEvents implements EventSubscriberInterface
                     $text = $data->get('conversation', '');
                 }
                 $message->setTextContent($text);
+            } elseif ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_REACTION) {
+                if ($data->has('reactionMessage')) {
+                    $reaction = new ParameterBag($data->get('reactionMessage', []));
+                    $message->setTextContent($reaction->get('text'));
+                    $reactionKey = new ParameterBag($reaction->get('key', []));
+                    if ($reactionKey->has('id')) {
+                        $replyToId = $reactionKey->get('id');
+                        $replyToMessage = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $replyToId);
+                        if ($replyToMessage) {
+                            $message->setReplyTo($replyToId);
+                            $message->setReplyToMessage($replyToMessage);
+                        }
+                    }
+                }
             } elseif ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_IMAGE) {
                 $messageObject = new ParameterBag($data->get('imageMessage', []));
                 if ($messageObject->has('caption')) {
