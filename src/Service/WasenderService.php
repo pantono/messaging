@@ -187,6 +187,14 @@ class WasenderService implements WhatsappServiceInterface
         ]);
     }
 
+    public function saveContact(string $jid, string $name): array
+    {
+        return $this->put('/contacts', [
+            'jid' => $jid,
+            'fullName' => $name,
+        ]);
+    }
+
     /**
      * @return array<string,mixed>
      */
@@ -298,6 +306,14 @@ class WasenderService implements WhatsappServiceInterface
     {
         $url = $this->baseUrl . $path;
         return $this->request('POST', $url, $body);
+    }
+    /**
+     * @return array<string,mixed>
+     */
+    private function put(string $path, array $body = []): array
+    {
+        $url = $this->baseUrl . $path;
+        return $this->request('PUT', $url, $body);
     }
 
     /**
