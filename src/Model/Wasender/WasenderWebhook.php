@@ -168,7 +168,13 @@ class WasenderWebhook
         if (str_ends_with($jid, '@s.whatsapp.net')) {
             return $jid;
         }
-        return $this->getKey()->get('participantPn');
+        if ($this->getKey()->has('participantPn')) {
+            return $this->getKey()->get('participantPn');
+        }
+        if ($this->getKey()->has('senderPn')) {
+            return $this->getKey()->get('senderPn');
+        }
+        return null;
     }
 
     public function getParentId(): ?string
