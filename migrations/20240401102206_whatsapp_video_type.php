@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Phinx\Migration\AbstractMigration;
 
-final class WasenderMigration extends AbstractMigration
+final class WhatsappVideoType extends AbstractMigration
 {
     public function change(): void
     {
