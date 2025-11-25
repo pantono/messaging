@@ -79,4 +79,13 @@ class WhatsappContact
     {
         $this->online = $online;
     }
+
+    public function getPhoneNumber(): ?string
+    {
+        $id = $this->getWhatsappId();
+        if (str_ends_with($id, '@s.whatsapp.net')) {
+            return substr($id, 0, -15);
+        }
+        return null;
+    }
 }
