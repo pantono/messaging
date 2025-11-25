@@ -8,8 +8,6 @@ use Pantono\Contracts\Attributes\Lazy;
 use Pantono\Contracts\Attributes\Locator;
 use Pantono\Contracts\Attributes\NoSave;
 use Pantono\Database\Traits\SavableModel;
-use Pantono\Images\Images;
-use Pantono\Images\Model\Image;
 use Pantono\Messaging\Whatsapp;
 use Pantono\Storage\FileStorage;
 use Pantono\Storage\Model\StoredFile;

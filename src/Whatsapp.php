@@ -34,6 +34,7 @@ class Whatsapp
     public const int MESSAGE_TYPE_STICKER = 7;
     public const int MESSAGE_TYPE_AUDIO = 8;
     public const int MESSAGE_TYPE_REACTION = 9;
+    public const int MESSAGE_TYPE_VIDEO = 10;
 
     public function __construct(WhatsappRepository $repository, Hydrator $hydrator, EventDispatcher $dispatcher)
     {

@@ -144,6 +144,9 @@ class WasenderMessageEvents implements EventSubscriberInterface
         if ($messageObject->has('reactionMessage')) {
             return $this->whatsapp->getMessageTypeById(Whatsapp::MESSAGE_TYPE_REACTION);
         }
+        if ($messageObject->has('videoMessage')) {
+            return $this->whatsapp->getMessageTypeById(Whatsapp::MESSAGE_TYPE_VIDEO);
+        }
         return null;
     }
 
