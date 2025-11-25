@@ -253,6 +253,17 @@ class WasenderMessageEvents implements EventSubscriberInterface
                 if ($file) {
                     $message->setFile($file);
                 }
+            }  elseif ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_VIDEO) {
+                $messageObject = new ParameterBag($data->get('videoMessage', []));
+                if ($messageObject->has('caption')) {
+                    $message->setTextContent($messageObject->get('caption'));
+                } else {
+                    $message->setTextContent('');
+                }
+                $file = $this->getFileFromMessageObject($data);
+                if ($file) {
+                    $message->setFile($file);
+                }
             } elseif ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_STICKER) {
                 $messageObject = new ParameterBag($data->get('stickerMessage', []));
                 if ($messageObject->has('caption')) {
