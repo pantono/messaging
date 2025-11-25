@@ -187,29 +187,8 @@ class Whatsapp
         $this->getServiceForInstance($contact->getInstance())->sendText($contact->getWhatsappId(), $text);
     }
 
-    public function startTransaction(): void
-    {
-        $this->repository->beginTransaction();
-    }
-
-    public function endTransaction(): void
-    {
-        $this->repository->endTransaction();
-    }
-
-    public function acquireMessageLock(string $messageId): bool
-    {
-        return $this->repository->getLock($messageId);
-    }
-
-    public function releaseMessageLock(string $messageId): void
-    {
-        $this->repository->releaseLock($messageId);
-    }
-
     public function createOrUpdateContact(WhatsappInstance $instance, string $id, ?string $name = ''): WhatsappContact
     {
-        $this->startTransaction();
         $contact = $this->getContactByWhatsappId($instance, $id);
         if (!$contact) {
             $contact = new WhatsappContact();
@@ -222,7 +201,6 @@ class Whatsapp
             $contact->setName($name);
         }
         $this->saveContact($contact);
-        $this->endTransaction();
         return $contact;
     }
 }

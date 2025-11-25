@@ -68,7 +68,6 @@ class WasenderMessageEvents implements EventSubscriberInterface
         $hook = $event->getWebhook();
         if ($hook->getEvent() === 'messages.received' || $hook->getEvent() === 'messages-personal.received' || $hook->getEvent() === 'messages-group.received') {
             $id = $hook->getMessageData()->get('id');
-            $this->whatsapp->acquireMessageLock($id);
             $instance = $this->getInstanceFromHook($event);
             $message = $this->createMessageFromWebhook($instance, $hook);
             if ($message) {
@@ -84,7 +83,6 @@ class WasenderMessageEvents implements EventSubscriberInterface
                 }
                 $event->setProcessed(true);
             }
-            $this->whatsapp->releaseMessageLock($id);
         }
     }
 
@@ -159,7 +157,6 @@ class WasenderMessageEvents implements EventSubscriberInterface
         $fromContact = $this->whatsapp->createOrUpdateContact($instance, $hook->getFromId(), $hook->getFromName());
         $data = $hook->getMessageObject();
         $containerData = $hook->getMessageData();
-        $this->whatsapp->startTransaction();
         try {
             $message = $this->whatsapp->getMessageByWhatsappId($instance->getId(), $containerData->get('id'));
             if ($message === null) {
@@ -253,7 +250,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
                 if ($file) {
                     $message->setFile($file);
                 }
-            }  elseif ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_VIDEO) {
+            } elseif ($message->getType()->getId() === Whatsapp::MESSAGE_TYPE_VIDEO) {
                 $messageObject = new ParameterBag($data->get('videoMessage', []));
                 if ($messageObject->has('caption')) {
                     $message->setTextContent($messageObject->get('caption'));
@@ -288,10 +285,8 @@ class WasenderMessageEvents implements EventSubscriberInterface
                 }
             }
 
-            $this->whatsapp->endTransaction();
             return $message;
         } catch (\Exception $e) {
-            $this->whatsapp->endTransaction();
             throw $e;
         }
     }
