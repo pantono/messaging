@@ -15,7 +15,7 @@ class WhatsappGroup
     private ?int $id = null;
     private int $instanceId;
     private string $groupId;
-    private string $subject;
+    private ?string $subject = null;
     private ?string $ownerId = null;
     private ?string $description = null;
     /**
@@ -54,12 +54,12 @@ class WhatsappGroup
         $this->groupId = $groupId;
     }
 
-    public function getSubject(): string
+    public function getSubject(): ?string
     {
         return $this->subject;
     }
 
-    public function setSubject(string $subject): void
+    public function setSubject(?string $subject): void
     {
         $this->subject = $subject;
     }
