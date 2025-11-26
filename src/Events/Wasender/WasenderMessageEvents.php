@@ -214,6 +214,8 @@ class WasenderMessageEvents implements EventSubscriberInterface
                     $text = $replyContext->get('text');
                     $context = $replyContext->get('contextInfo', []);
                     $replyTo = $context['stanzaId'] ?? null;
+                    $mentioned = $context['mentionedJid'] ?? [];
+                    $message->setMentions($mentioned);
                     if ($replyTo) {
                         $replyMessage = $this->getReplyToMessageWait($instance->getId(), $replyTo);
                         if ($replyMessage) {
