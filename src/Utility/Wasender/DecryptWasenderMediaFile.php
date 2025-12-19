@@ -12,10 +12,9 @@ class DecryptWasenderMediaFile
     /**
      * @return array<string, string>
      */
-    public static function decryptFileFromMessageObject(ParameterBag $messageObject): array
+    public static function decryptFileFromMessageObject(ParameterBag $messageObject, string $messageId): array
     {
         $mediaType = 'image';
-        $filename = $messageObject->get('id');
         if ($messageObject->has('imageMessage')) {
             $messageDataObject = new ParameterBag($messageObject->get('imageMessage'));
             $extension = 'jpg';
@@ -45,7 +44,7 @@ class DecryptWasenderMediaFile
         $decryptedContents = self::decryptWhatsAppMedia($mediaKey, $url, $mediaType);
         return [
             'contents' => $decryptedContents,
-            'filename' => $filename . '.' . $extension,
+            'filename' => $messageId . '.' . $extension,
         ];
     }
 

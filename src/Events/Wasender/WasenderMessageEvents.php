@@ -4,7 +4,6 @@ namespace Pantono\Messaging\Events\Wasender;
 
 use Pantono\Messaging\Event\Wasender\WasenderWebhookProcess;
 use Pantono\Messaging\Model\Wasender\WasenderWebhook;
-use Pantono\Messaging\Model\WhatsappContact;
 use Pantono\Messaging\Model\WhatsappGroup;
 use Pantono\Messaging\Model\WhatsappInstance;
 use Pantono\Messaging\Model\WhatsappMessage;
@@ -248,7 +247,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
                 } else {
                     $message->setTextContent('');
                 }
-                $file = $this->getFileFromMessageObject($data);
+                $file = $this->getFileFromMessageObject($data, $message->getMessageId());
                 if ($file) {
                     $message->setFile($file);
                 }
@@ -259,7 +258,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
                 } else {
                     $message->setTextContent('');
                 }
-                $file = $this->getFileFromMessageObject($data);
+                $file = $this->getFileFromMessageObject($data, $message->getMessageId());
                 if ($file) {
                     $message->setFile($file);
                 }
@@ -270,7 +269,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
                 } else {
                     $message->setTextContent('');
                 }
-                $file = $this->getFileFromMessageObject($data);
+                $file = $this->getFileFromMessageObject($data, $message->getMessageId());
                 if ($file) {
                     $message->setFile($file);
                 }
@@ -281,7 +280,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
                 } else {
                     $message->setTextContent('');
                 }
-                $file = $this->getFileFromMessageObject($data);
+                $file = $this->getFileFromMessageObject($data, $message->getMessageId());
                 if ($file) {
                     $message->setFile($file);
                 }
@@ -293,9 +292,9 @@ class WasenderMessageEvents implements EventSubscriberInterface
         }
     }
 
-    private function getFileFromMessageObject(ParameterBag $messageObject): ?StoredFile
+    private function getFileFromMessageObject(ParameterBag $messageObject, string $messageId): ?StoredFile
     {
-        $file = DecryptWasenderMediaFile::decryptFileFromMessageObject($messageObject);
+        $file = DecryptWasenderMediaFile::decryptFileFromMessageObject($messageObject, $messageId);
         if ($file) {
             return $this->fileStorage->uploadFile($file['filename'], $file['contents']);
         }
