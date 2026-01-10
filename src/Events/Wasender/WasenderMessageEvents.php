@@ -34,6 +34,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
         return [
             WasenderWebhookProcess::class => [
                 ['processIncomingMessage', 0],
+                ['processOutgoingMessage', 1],
                 ['processContactUpdate', 0],
                 ['processGroupUpdate', 0]
             ]
@@ -58,6 +59,28 @@ class WasenderMessageEvents implements EventSubscriberInterface
                         $this->queueManager->createTask('wasender_update_group', ['id' => $groupId, 'instance_id' => $instance->getId()]);
                     }
                 }
+            }
+        }
+    }
+
+    public function processOutgoingMessage(WasenderWebhookProcess $event): void
+    {
+        $hook = $event->getWebhook();
+        if ($hook->getEvent() === 'messages.upsert') {
+            $instance = $this->getInstanceFromHook($event);
+            $message = $this->createMessageFromWebhook($instance, $hook);
+            if ($message) {
+                try {
+                    $this->whatsapp->saveMessage($message);
+                } catch (\Exception $e) {
+                    if (str_contains($e->getMessage(), 'Deadlock')) {
+                        sleep(1);
+                        $this->whatsapp->saveMessage($message);
+                    } else {
+                        throw $e;
+                    }
+                }
+                $event->setProcessed(true);
             }
         }
     }
