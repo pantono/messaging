@@ -53,7 +53,7 @@ interface WhatsappServiceInterface
     public function sendLocation(string $to, float $latitude, float $longitude, ?string $name = null, ?string $address = null, ?string $replyTo = null): array;
 
     /**
-     * @return array<string,mixed>
+     * @return array<int, array<string, mixed>>
      */
     public function listGroups(): array;
     /**
@@ -61,11 +61,11 @@ interface WhatsappServiceInterface
      */
     public function createGroup(string $subject, array $participants): array;
     /**
-     * @return array<string,mixed>
+     * @return array<int, array<string, mixed>>
      */
     public function addGroupParticipants(string $groupId, array $participants): array;
     /**
-     * @return array<string,mixed>
+     * @return array<int, array<string, mixed>>
      */
     public function removeGroupParticipants(string $groupId, array $participants): array;
     /**

@@ -213,7 +213,7 @@ class WasenderService implements WhatsappServiceInterface
     }
 
     /**
-     * @return array<string,mixed>
+     * @return array<int, array<string, mixed>>
      */
     public function listGroups(): array
     {
@@ -232,7 +232,7 @@ class WasenderService implements WhatsappServiceInterface
     }
 
     /**
-     * @return array<string,mixed>
+     * @return array<int, array<string, mixed>>
      */
     public function addGroupParticipants(string $groupId, array $participants): array
     {
@@ -242,7 +242,7 @@ class WasenderService implements WhatsappServiceInterface
     }
 
     /**
-     * @return array<string,mixed>
+     * @return array<int, array<string, mixed>>
      */
     public function removeGroupParticipants(string $groupId, array $participants): array
     {
@@ -288,7 +288,7 @@ class WasenderService implements WhatsappServiceInterface
     }
 
     /**
-     * @return array<string,mixed>
+     * @return array<mixed>
      */
     private function get(string $path, array $query = []): array
     {
@@ -300,7 +300,7 @@ class WasenderService implements WhatsappServiceInterface
     }
 
     /**
-     * @return array<string,mixed>
+     * @return array<mixed>
      */
     private function post(string $path, array $body = []): array
     {
@@ -308,7 +308,7 @@ class WasenderService implements WhatsappServiceInterface
         return $this->request('POST', $url, $body);
     }
     /**
-     * @return array<string,mixed>
+     * @return array<mixed>
      */
     private function put(string $path, array $body = []): array
     {
@@ -317,7 +317,7 @@ class WasenderService implements WhatsappServiceInterface
     }
 
     /**
-     * @return array<string,mixed>
+     * @return array<mixed>
      */
     private function delete(string $path, array $body = []): array
     {
@@ -326,7 +326,7 @@ class WasenderService implements WhatsappServiceInterface
     }
 
     /**
-     * @return array<string,mixed>
+     * @return array<mixed>
      */
     private function request(string $method, string $url, array $body = []): array
     {
