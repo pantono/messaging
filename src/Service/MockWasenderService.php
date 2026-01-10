@@ -3,14 +3,14 @@
 namespace Pantono\Messaging\Service;
 
 use Pantono\Messaging\Model\WhatsappInstance;
-use Pantono\Messaging\Repository\DummyWhatsappMessageRepository;
+use Pantono\Messaging\Repository\MockWasenderService;
 
-class DatabaseWhatsappInstance implements WhatsappServiceInterface
+class MockWasenderService implements WhatsappServiceInterface
 {
-    private DummyWhatsappMessageRepository $repository;
+    private MockWasenderService $repository;
     private ?WhatsappInstance $instance = null;
 
-    public function __construct(DummyWhatsappMessageRepository $repository)
+    public function __construct(MockWasenderService $repository)
     {
         $this->repository = $repository;
     }

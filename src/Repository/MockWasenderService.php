@@ -4,7 +4,7 @@ namespace Pantono\Messaging\Repository;
 
 use Pantono\Database\Repository\MysqlRepository;
 
-class DummyWhatsappMessageRepository extends MysqlRepository
+class MockWasenderService extends MysqlRepository
 {
     public function logCall(int $instanceId, string $method, array $data): void
     {

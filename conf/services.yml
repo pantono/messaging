@@ -2,3 +2,5 @@ Whatsapp:
   class: Pantono\Messaging\Whatsapp
 WaSender:
   class: Pantono\Messaging\Service\WasenderService
+MockWaSender:
+  class: Pantono\Messaging\Service\MockWasenderService
