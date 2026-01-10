@@ -181,6 +181,9 @@ class WasenderMessageEvents implements EventSubscriberInterface
         if (!$type) {
             return null;
         }
+        if (!$hook->getFromId()) {
+            return null;
+        }
         $fromContact = $this->whatsapp->createOrUpdateContact($instance, $hook->getFromId(), $hook->getFromName());
         $data = $hook->getMessageObject();
         $containerData = $hook->getMessageData();
