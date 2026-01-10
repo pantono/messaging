@@ -16,6 +16,9 @@ class WhatsappMessageType
     private bool $poll;
     private bool $contact;
     private bool $location;
+    private bool $audio;
+    private bool $reaction;
+    private bool $video;
 
     public function getId(): ?int
     {
@@ -95,5 +98,35 @@ class WhatsappMessageType
     public function setLocation(bool $location): void
     {
         $this->location = $location;
+    }
+
+    public function isAudio(): bool
+    {
+        return $this->audio;
+    }
+
+    public function setAudio(bool $audio): void
+    {
+        $this->audio = $audio;
+    }
+
+    public function isReaction(): bool
+    {
+        return $this->reaction;
+    }
+
+    public function setReaction(bool $reaction): void
+    {
+        $this->reaction = $reaction;
+    }
+
+    public function isVideo(): bool
+    {
+        return $this->video;
+    }
+
+    public function setVideo(bool $video): void
+    {
+        $this->video = $video;
     }
 }
