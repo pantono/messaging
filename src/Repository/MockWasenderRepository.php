@@ -10,7 +10,7 @@ class MockWasenderRepository extends MysqlRepository
     {
         $this->getDb()->insert('whatsapp_service_mock', [
             'instance_id' => $instanceId,
-            'method' => $method,
+            'action' => $method,
             'data' => json_encode($data)
         ]);
     }
