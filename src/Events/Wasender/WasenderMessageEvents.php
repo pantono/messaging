@@ -69,7 +69,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
         if ($hook->getEvent() === 'messages.upsert') {
             $instance = $this->getInstanceFromHook($event);
             $message = $this->createMessageFromWebhook($instance, $hook);
-            if ($message) {
+            if ($message && $message->isIncoming() === false) {
                 try {
                     $this->whatsapp->saveMessage($message);
                 } catch (\Exception $e) {
