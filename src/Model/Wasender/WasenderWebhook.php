@@ -2,8 +2,8 @@
 
 namespace Pantono\Messaging\Model\Wasender;
 
-use Pantono\Database\Traits\SavableModel;
 use Pantono\Contracts\Attributes\Filter;
+use Pantono\Database\Traits\SavableModel;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -108,7 +108,7 @@ class WasenderWebhook
 
     public function isMessageHook(): bool
     {
-        $messageHooks = ['messages.received', 'messages-group.received', 'messages-personal.received', 'messages.upsert'];
+        $messageHooks = ['messages.received', 'messages-group.received', 'messages-personal.received', 'messages.upsert', 'message.sent'];
         if (!in_array($this->getEvent(), $messageHooks)) {
             return false;
         }
