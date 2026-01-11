@@ -2,6 +2,7 @@
 
 namespace Pantono\Messaging;
 
+use Pantono\Hydrator\Hydrator;
 use Pantono\Hydrator\Locator\StaticLocator;
 use Pantono\Messaging\Event\PostWhatsappContactSaveEvent;
 use Pantono\Messaging\Event\PostWhatsappGroupSaveEvent;
@@ -16,7 +17,6 @@ use Pantono\Messaging\Model\WhatsappInstance;
 use Pantono\Messaging\Model\WhatsappMessage;
 use Pantono\Messaging\Model\WhatsappMessageType;
 use Pantono\Messaging\Repository\WhatsappRepository;
-use Pantono\Hydrator\Hydrator;
 use Pantono\Messaging\Service\WhatsappServiceInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -105,6 +105,11 @@ class Whatsapp
     public function getMessageById(int $id): ?WhatsappMessage
     {
         return $this->hydrator->hydrate(WhatsappMessage::class, $this->repository->getMessageById($id));
+    }
+
+    public function getMessageByWhatsappIdStandalone(string $whatsappId): ?WhatsappMessage
+    {
+        return $this->hydrator->hydrate(WhatsappMessage::class, $this->repository->getMessageByWhatsappIdStandalone($whatsappId));
     }
 
     public function getMessageByWhatsappId(int $instanceId, string $whatsappId): ?WhatsappMessage

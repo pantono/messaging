@@ -113,6 +113,14 @@ class WhatsappRepository extends MysqlRepository
 
         return $this->selectSingleRowFromQuery($select);
     }
+    public function getMessageByWhatsappIdStandalone(string $whatsappId): ?array
+    {
+        $select = $this->getDb()->select()->from('whatsapp_message')
+            ->where('message_id=?', $whatsappId)
+            ->setLockForUpdate(true);
+
+        return $this->selectSingleRowFromQuery($select);
+    }
 
     public function saveMessage(WhatsappMessage $message): void
     {
