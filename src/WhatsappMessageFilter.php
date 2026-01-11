@@ -17,6 +17,8 @@ class WhatsappMessageFilter implements PageableInterface
     private ?\DateTimeInterface $endDate = null;
     private ?WhatsappMessageType $type = null;
     private ?string $search = null;
+    private ?bool $direct = null;
+    private ?int $groupId = null;
 
     public function getWhatsappContactId(): ?string
     {
@@ -76,5 +78,25 @@ class WhatsappMessageFilter implements PageableInterface
     public function setSearch(?string $search): void
     {
         $this->search = $search;
+    }
+
+    public function getDirect(): ?bool
+    {
+        return $this->direct;
+    }
+
+    public function setDirect(?bool $direct): void
+    {
+        $this->direct = $direct;
+    }
+
+    public function getGroupId(): ?int
+    {
+        return $this->groupId;
+    }
+
+    public function setGroupId(?int $groupId): void
+    {
+        $this->groupId = $groupId;
     }
 }

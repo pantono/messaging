@@ -92,6 +92,17 @@ class WhatsappRepository extends MysqlRepository
             $select->where('whatsapp_message.text_content LIKE ?', '%' . $filter->getSearch() . '%');
         }
 
+        if ($filter->getDirect() === true) {
+            $select->where('whatsapp_message.group_id IS NULL');
+        }
+        if ($filter->getDirect() === false) {
+            $select->where('whatsapp_message.group_id IS NOT NULL');
+        }
+
+        if ($filter->getGroupId() !== null) {
+            $select->where('whatsapp_message.group_id=?', $filter->getGroupId());
+        }
+
         $filter->setTotalResults($this->getCount($select));
 
         $select->limitPage($filter->getPage(), $filter->getPerPage());
