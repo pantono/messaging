@@ -4,6 +4,7 @@ namespace Pantono\Messaging\Model\Wasender;
 
 use Pantono\Contracts\Attributes\Filter;
 use Pantono\Database\Traits\SavableModel;
+use Pantono\Messaging\Model\WhatsappInstance;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -158,7 +159,7 @@ class WasenderWebhook
         return null;
     }
 
-    public function getFromId(): ?string
+    public function getFromId(?WhatsappInstance $instance = null): ?string
     {
         if (!$this->isMessageHook()) {
             throw new \RuntimeException('Webhook is not a message');
@@ -173,6 +174,11 @@ class WasenderWebhook
         }
         if ($this->getKey()->has('senderPn')) {
             return $this->getKey()->get('senderPn');
+        }
+        if ($this->getKey()->has('fromMe') && $this->getKey()->get('fromMe') === true && $instance) {
+            $number = $instance->getPhoneNumber();
+            $number = preg_replace('/[^0-9]/', '', $number);
+            return $number . '@s.whatsapp.net';
         }
         return null;
     }
