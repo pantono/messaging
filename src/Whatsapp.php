@@ -191,6 +191,13 @@ class Whatsapp
     {
         $this->getServiceForInstance($contact->getInstance())->sendText($contact->getWhatsappId(), $text);
     }
+    public function sendGroupMessage(WhatsappGroup $group, string $text): void
+    {
+        $instance = $this->getInstanceById($group->getInstanceId());
+        if ($instance) {
+            $this->getServiceForInstance($instance)->sendText($group->getGroupId(), $text);
+        }
+    }
 
     public function createOrUpdateContact(WhatsappInstance $instance, string $id, ?string $name = ''): WhatsappContact
     {
