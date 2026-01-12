@@ -87,4 +87,11 @@ class WhatsappInstance
     {
         $this->default = $default;
     }
+
+    public function getWhatsappNumber(): string
+    {
+        $number = $this->getPhoneNumber();
+        $number = preg_replace('/[^0-9]/', '', $number);
+        return $number . '@s.whatsapp.net';
+    }
 }

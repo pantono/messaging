@@ -176,9 +176,7 @@ class WasenderWebhook
             return $this->getKey()->get('senderPn');
         }
         if ($this->getKey()->has('fromMe') && $this->getKey()->get('fromMe') === true && $instance) {
-            $number = $instance->getPhoneNumber();
-            $number = preg_replace('/[^0-9]/', '', $number);
-            return $number . '@s.whatsapp.net';
+            return $instance->getWhatsappNumber();
         }
         return null;
     }
