@@ -199,6 +199,12 @@ class Whatsapp
         }
     }
 
+    public function getMessageInfo(WhatsappMessage $whatsappMessage): array
+    {
+        $instance = $this->getInstanceById($whatsappMessage->getInstanceId());
+        return $this->getServiceForInstance($instance)->getMessageInfo($whatsappMessage);
+    }
+
     public function sendPollToGroup(WhatsappGroup $group, string $text, array $options, bool $allowMultiple): void
     {
         $instance = $this->getInstanceById($group->getInstanceId());

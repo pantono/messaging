@@ -3,6 +3,7 @@
 namespace Pantono\Messaging\Service;
 
 use Pantono\Messaging\Model\WhatsappInstance;
+use Pantono\Messaging\Model\WhatsappMessage;
 
 interface WhatsappServiceInterface
 {
@@ -85,4 +86,8 @@ interface WhatsappServiceInterface
      * @return array<string,mixed>
      */
     public function sendPoll(string $toId, string $text, array $options, bool $allowMultiple): array;
+    /**
+     * @return array<string,mixed>
+     */
+    public function getMessageInfo(WhatsappMessage $message): array;
 }

@@ -3,6 +3,7 @@
 namespace Pantono\Messaging\Service;
 
 use Pantono\Messaging\Model\WhatsappInstance;
+use Pantono\Messaging\Model\WhatsappMessage;
 use Pantono\Messaging\Repository\MockWasenderRepository;
 
 class MockWasenderService implements WhatsappServiceInterface
@@ -132,6 +133,12 @@ class MockWasenderService implements WhatsappServiceInterface
     {
         $this->logCall('unblockContact', ['phone' => $phone]);
         return ['message' => '"Contact unblocked'];
+    }
+
+    public function getMessageInfo(WhatsappMessage $message): array
+    {
+        $this->logCall('unblockContact', ['message' => $message->getMessageId()]);
+        return [];
     }
 
     private function logCall(string $call, array $data): void
