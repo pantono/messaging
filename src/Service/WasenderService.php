@@ -8,10 +8,10 @@ use Pantono\Logger\Factory\LoggedHttpClientFactory;
 use Pantono\Messaging\Event\Wasender\PostWasenderWebhookSaveEvent;
 use Pantono\Messaging\Event\Wasender\PreWasenderWebhookSaveEvent;
 use Pantono\Messaging\Model\Wasender\WasenderWebhook;
+use Pantono\Messaging\Model\WhatsappInstance;
 use Pantono\Messaging\Repository\WasenderRepository;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
-use Pantono\Messaging\Model\WhatsappInstance;
 
 class WasenderService implements WhatsappServiceInterface
 {
@@ -106,6 +106,18 @@ class WasenderService implements WhatsappServiceInterface
             'to' => $to,
             'text' => $message,
             'replyTo' => $replyTo
+        ]);
+    }
+
+    public function sendPoll(string $toId, string $text, array $options, bool $allowMultiple): array
+    {
+        return $this->post('/send-message', [
+            'to' => $toId,
+            'poll' => [
+                'question' => $text,
+                'options' => $options,
+                'multiSelect' => $allowMultiple
+            ]
         ]);
     }
 

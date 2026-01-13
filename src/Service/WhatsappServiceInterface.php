@@ -80,4 +80,9 @@ interface WhatsappServiceInterface
      * @return array<string,mixed>
      */
     public function unblockContact(string $phone): array;
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function sendPoll(string $toId, string $text, array $options, bool $allowMultiple): array;
 }

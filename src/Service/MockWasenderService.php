@@ -32,6 +32,12 @@ class MockWasenderService implements WhatsappServiceInterface
         return ['msgId' => 1, 'jid' => '+777777', 'status' => 'in_progress'];
     }
 
+    public function sendPoll(string $toId, string $text, array $options, bool $allowMultiple): array
+    {
+        $this->logCall('sendPoll', ['to' => $toId, 'text' => $text, 'options' => $options, 'allowMultiple' => $allowMultiple]);
+        return ['msgId' => 1, 'jid' => '+777777', 'status' => 'in_progress'];
+    }
+
     public function sendImage(string $to, string $imageUrl, ?string $text = null, ?string $replyTo = null): array
     {
         $this->logCall('sendImage', ['to' => $to, 'imageUrl' => $imageUrl]);

@@ -199,6 +199,12 @@ class Whatsapp
         }
     }
 
+    public function sendPollToGroup(WhatsappGroup $group, string $text, array $options, bool $allowMultiple): void
+    {
+        $instance = $this->getInstanceById($group->getInstanceId());
+        $this->getServiceForInstance($instance)->sendPoll($group->getGroupId(), $text, $options, $allowMultiple);
+    }
+
     public function createOrUpdateContact(WhatsappInstance $instance, string $id, ?string $name = ''): WhatsappContact
     {
         $contact = $this->getContactByWhatsappId($instance, $id);
