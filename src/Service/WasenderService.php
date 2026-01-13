@@ -264,6 +264,12 @@ class WasenderService implements WhatsappServiceInterface
         ]);
     }
 
+
+    public function getMessageInfo(WhatsappMessage $message): array
+    {
+        return $this->get('/messages/' . $message->getMessageId() . '/info');
+    }
+
     /**
      * @return array<string,mixed>
      */
@@ -336,11 +342,6 @@ class WasenderService implements WhatsappServiceInterface
     {
         $url = $this->baseUrl . $path;
         return $this->request('DELETE', $url, $body);
-    }
-
-    public function getMessageInfo(WhatsappMessage $message): array
-    {
-        return $this->request('GET', '/messages/' . $message->getMessageId() . '/info');
     }
 
     /**
