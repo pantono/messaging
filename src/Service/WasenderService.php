@@ -9,6 +9,7 @@ use Pantono\Messaging\Event\Wasender\PostWasenderWebhookSaveEvent;
 use Pantono\Messaging\Event\Wasender\PreWasenderWebhookSaveEvent;
 use Pantono\Messaging\Model\Wasender\WasenderWebhook;
 use Pantono\Messaging\Model\WhatsappInstance;
+use Pantono\Messaging\Model\WhatsappMessage;
 use Pantono\Messaging\Repository\WasenderRepository;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -335,6 +336,11 @@ class WasenderService implements WhatsappServiceInterface
     {
         $url = $this->baseUrl . $path;
         return $this->request('DELETE', $url, $body);
+    }
+
+    public function getMessageInfo(WhatsappMessage $message): array
+    {
+        return $this->request('GET', '/messages/' . $message->getMessageId() . '/info');
     }
 
     /**
