@@ -65,7 +65,7 @@ class WhatsappRepository extends MysqlRepository
 
     public function getMessagesByFilter(WhatsappMessageFilter $filter): array
     {
-        $select = $this->getDb()->select()->from('whatsapp_message')->order('date ASC');
+        $select = $this->getDb()->select()->from('whatsapp_message')->order('date DESC');
 
         if ($filter->getContact() !== null) {
             $select->where('whatsapp_message.contact_id=?', $filter->getContact()->getId());
