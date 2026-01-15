@@ -12,7 +12,7 @@ class DecryptWasenderMediaFile
     /**
      * @return array<string, string>
      */
-    public static function decryptFileFromMessageObject(ParameterBag $messageObject, string $messageId): array
+    public static function decryptFileDataFromMessageObject(ParameterBag $messageObject, string $messageId): string
     {
         $mediaType = 'image';
         if ($messageObject->has('imageMessage')) {
@@ -41,11 +41,32 @@ class DecryptWasenderMediaFile
         $mediaKey = $messageDataObject->get('mediaKey');
         $url = $messageDataObject->get('url');
 
-        $decryptedContents = self::decryptWhatsAppMedia($mediaKey, $url, $mediaType);
+        return self::decryptWhatsAppMedia($mediaKey, $url, $mediaType);
         return [
             'contents' => $decryptedContents,
             'filename' => $messageId . '.' . $extension,
         ];
+    }
+
+    public static function getFilenameFromMessage(ParameterBag $messageObject, string $messageId): string
+    {
+        if ($messageObject->has('imageMessage')) {
+            $extension = 'jpg';
+        } elseif ($messageObject->has('stickerMessage')) {
+            $extension = 'jpg';
+        } elseif ($messageObject->has('videoMessage')) {
+            $extension = 'mp4';
+        } elseif ($messageObject->has('audioMessage')) {
+            $extension = 'ogg';
+        } elseif ($messageObject->has('documentMessage')) {
+            $messageDataObject = new ParameterBag($messageObject->get('documentMessage'));
+            $path = pathinfo($messageDataObject->get('fileName'));
+            $extension = $path['extension'] ?? 'txt';
+        } else {
+            throw new \RuntimeException('Unsupported message type');
+        }
+
+        return $messageId . '.' . $extension;
     }
 
     private static function downloadFile(string $url): string

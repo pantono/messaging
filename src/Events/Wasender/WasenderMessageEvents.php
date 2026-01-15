@@ -325,9 +325,14 @@ class WasenderMessageEvents implements EventSubscriberInterface
 
     private function getFileFromMessageObject(ParameterBag $messageObject, string $messageId): ?StoredFile
     {
-        $file = DecryptWasenderMediaFile::decryptFileFromMessageObject($messageObject, $messageId);
-        if ($file) {
-            return $this->fileStorage->uploadFile($file['filename'], $file['contents']);
+        $filename = DecryptWasenderMediaFile::getFilenameFromMessage($messageObject, $messageId);
+        $current = $this->fileStorage->getFileByFilename($filename);
+        if ($current) {
+            return $current;
+        }
+        $fileData = DecryptWasenderMediaFile::decryptFileDataFromMessageObject($messageObject, $messageId);
+        if ($fileData) {
+            return $this->fileStorage->uploadFile($filename, $fileData, false);
         }
         return null;
     }
