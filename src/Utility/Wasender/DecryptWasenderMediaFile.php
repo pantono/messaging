@@ -9,31 +9,22 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  */
 class DecryptWasenderMediaFile
 {
-    /**
-     * @return array<string, string>
-     */
-    public static function decryptFileDataFromMessageObject(ParameterBag $messageObject, string $messageId): string
+    public static function decryptFileDataFromMessageObject(ParameterBag $messageObject): string
     {
         $mediaType = 'image';
         if ($messageObject->has('imageMessage')) {
             $messageDataObject = new ParameterBag($messageObject->get('imageMessage'));
-            $extension = 'jpg';
         } elseif ($messageObject->has('stickerMessage')) {
             $messageDataObject = new ParameterBag($messageObject->get('stickerMessage'));
-            $extension = 'jpg';
         } elseif ($messageObject->has('videoMessage')) {
             $mediaType = 'video';
             $messageDataObject = new ParameterBag($messageObject->get('videoMessage'));
-            $extension = 'mp4';
         } elseif ($messageObject->has('audioMessage')) {
             $messageDataObject = new ParameterBag($messageObject->get('audioMessage'));
             $mediaType = 'audio';
-            $extension = 'ogg';
         } elseif ($messageObject->has('documentMessage')) {
             $messageDataObject = new ParameterBag($messageObject->get('documentMessage'));
             $mediaType = 'document';
-            $path = pathinfo($messageDataObject->get('fileName'));
-            $extension = $path['extension'] ?? 'txt';
         } else {
             throw new \RuntimeException('Unsupported message type');
         }
@@ -42,10 +33,6 @@ class DecryptWasenderMediaFile
         $url = $messageDataObject->get('url');
 
         return self::decryptWhatsAppMedia($mediaKey, $url, $mediaType);
-        return [
-            'contents' => $decryptedContents,
-            'filename' => $messageId . '.' . $extension,
-        ];
     }
 
     public static function getFilenameFromMessage(ParameterBag $messageObject, string $messageId): string

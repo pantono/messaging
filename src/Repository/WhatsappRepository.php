@@ -2,14 +2,14 @@
 
 namespace Pantono\Messaging\Repository;
 
-use Pantono\Database\Repository\MysqlRepository;
+use Pantono\Database\Repository\DefaultRepository;
 use Pantono\Messaging\Model\WhatsappContact;
 use Pantono\Messaging\Model\WhatsappGroup;
 use Pantono\Messaging\Model\WhatsappInstance;
 use Pantono\Messaging\Model\WhatsappMessage;
 use Pantono\Messaging\WhatsappMessageFilter;
 
-class WhatsappRepository extends MysqlRepository
+class WhatsappRepository extends DefaultRepository
 {
     public function getContactById(int $id): ?array
     {

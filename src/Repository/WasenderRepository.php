@@ -2,10 +2,10 @@
 
 namespace Pantono\Messaging\Repository;
 
-use Pantono\Database\Repository\MysqlRepository;
+use Pantono\Database\Repository\DefaultRepository;
 use Pantono\Messaging\Model\Wasender\WasenderWebhook;
 
-class WasenderRepository extends MysqlRepository
+class WasenderRepository extends DefaultRepository
 {
     public function saveWebhook(WasenderWebhook $webhook): void
     {

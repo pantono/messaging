@@ -2,9 +2,9 @@
 
 namespace Pantono\Messaging\Repository;
 
-use Pantono\Database\Repository\MysqlRepository;
+use Pantono\Database\Repository\DefaultRepository;
 
-class MockWasenderRepository extends MysqlRepository
+class MockWasenderRepository extends DefaultRepository
 {
     public function logCall(int $instanceId, string $method, array $data): void
     {
