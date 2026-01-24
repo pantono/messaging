@@ -12,7 +12,7 @@
     "pantono/logger": "^0",
     "pantono/images": "^1.0",
     "pantono/queue": "^1.0",
-    "symfony/event-dispatcher": "^7.0",
+    "symfony/event-dispatcher": "^8.0",
     "ext-openssl": "*",
     "ext-pdo": "*"
   },
