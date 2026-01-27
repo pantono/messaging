@@ -211,6 +211,15 @@ class Whatsapp
         $this->getServiceForInstance($instance)->sendPoll($group->getGroupId(), $text, $options, $allowMultiple);
     }
 
+    /**
+     * @param WhatsappMessage $message
+     * @return WhatsappMessage[]
+     */
+    public function getChildMessages(WhatsappMessage $message): array
+    {
+        return $this->hydrator->hydrateSet(WhatsappMessage::class, $this->repository->getChildMessages($message->getMessageId()));
+    }
+
     public function createOrUpdateContact(WhatsappInstance $instance, string $id, ?string $name = ''): WhatsappContact
     {
         $contact = $this->getContactByWhatsappId($instance, $id);

@@ -48,6 +48,11 @@ class WhatsappMessage
      */
     #[Filter('json_decode')]
     private array $mentions = [];
+    /**
+     * @var WhatsappMessage[]
+     */
+    #[Locator(methodName: 'getChildMessages', className: Whatsapp::class), Lazy, FieldName('$this'), NoSave]
+    private array $children = [];
 
     public function getId(): ?int
     {
@@ -222,5 +227,15 @@ class WhatsappMessage
     public function isMentioned(string $phoneNumber): bool
     {
         return in_array($phoneNumber, $this->mentions);
+    }
+
+    public function getChildren(): array
+    {
+        return $this->children;
+    }
+
+    public function setChildren(array $children): void
+    {
+        $this->children = $children;
     }
 }

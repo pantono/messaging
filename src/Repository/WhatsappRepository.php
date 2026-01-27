@@ -176,4 +176,9 @@ class WhatsappRepository extends DefaultRepository
 
         return $this->selectSingleRowFromQuery($select);
     }
+
+    public function getChildMessages(string $messageId): ?array
+    {
+        return $this->selectRowsByValues('whatsapp_message', ['parent_id' => $messageId]);
+    }
 }
