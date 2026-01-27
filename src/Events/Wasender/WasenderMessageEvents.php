@@ -330,7 +330,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
         if ($current) {
             return $current;
         }
-        $fileData = DecryptWasenderMediaFile::decryptFileDataFromMessageObject($messageObject, $messageId);
+        $fileData = DecryptWasenderMediaFile::decryptFileDataFromMessageObject($messageObject);
         if ($fileData) {
             return $this->fileStorage->uploadFile($filename, $fileData, false);
         }
