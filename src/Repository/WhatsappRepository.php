@@ -13,18 +13,23 @@ class WhatsappRepository extends DefaultRepository
 {
     public function getContactById(int $id): ?array
     {
-        $select = $this->getDb()->select()->from('whatsapp_contact')
-            ->where('id=?', $id)
-            ->setLockForShare(true);
-        return $this->selectSingleRowFromQuery($select);
+        $select = $this->getDb()->select('c.*')->from('whatsapp_contact', 'c')
+            ->forUpdate()
+            ->where('c.id=:id')
+            ->setParameter('id', $id);
+
+        return $this->getDb()->fetchRow($select);
     }
 
     public function getContactByWhatsappId(WhatsappInstance $instance, string $phoneNumber): ?array
     {
-        $select = $this->getDb()->select()->from('whatsapp_contact')
-            ->where('instance_id=?', $instance->getId())
-            ->where('whatsapp_id=?', $phoneNumber)
-            ->setLockForShare(true);
+        $select = $this->getDb()->select('c.*')->from('whatsapp_contact', 'c')
+            ->forUpdate()
+            ->where('c.instance_id=:instance_id')
+            ->where('c.whatsapp_id=:whatsapp_id')
+            ->setParameter('instance_id', $instance->getId())
+            ->setParameter('whatsapp_id', $phoneNumber);
+
         return $this->getDb()->fetchRow($select);
     }
 
@@ -65,47 +70,53 @@ class WhatsappRepository extends DefaultRepository
 
     public function getMessagesByFilter(WhatsappMessageFilter $filter): array
     {
-        $select = $this->getDb()->select()->from('whatsapp_message')->order('date DESC');
+        $select = $this->getDb()->select('m.*')->from('whatsapp_message', 'm')
+            ->addOrderBy('date', 'DESC');
 
         if ($filter->getContact() !== null) {
-            $select->where('whatsapp_message.contact_id=?', $filter->getContact()->getId());
+            $select->where('m.contact_id=:contact_id')
+                ->setParameter('contact_id', $filter->getContact()->getId());
         }
 
         if ($filter->getStartDate() !== null) {
-            $select->where('whatsapp_message.date >= ?', $filter->getStartDate()->format('Y-m-d H:i:s'));
+            $select->where('m.date >= :start_date')
+                ->setParameter('start_date', $filter->getStartDate()->format('Y-m-d H:i:s'));
         }
 
         if ($filter->getEndDate() !== null) {
-            $select->where('whatsapp_message.date <= ?', $filter->getEndDate()->format('Y-m-d H:i:s'));
+            $select->where('m.date <= :end_date')
+                ->setParameter('end_date', $filter->getEndDate()->format('Y-m-d H:i:s'));
         }
 
         if ($filter->getType() !== null) {
-            $select->where('whatsapp_message.type_id=?', $filter->getType()->getId());
+            $select->where('m.type_id=:type_id')
+                ->setParameter('type_id', $filter->getType()->getId());
         }
 
         if ($filter->getWhatsappContactId() !== null) {
-            $select->joinInner('whatsapp_contact', 'whatsapp_contact.id = whatsapp_message.contact_id', [])
-                ->where('whatsapp_contact.whatsapp_id = ?', $filter->getWhatsappContactId());
+            $select->innerJoin('m', 'whatsapp_contact', 'c', 'c.id = m.contact_id')
+                ->where('c.whatsapp_id = :id')
+                ->setParameter('id', $filter->getWhatsappContactId());
         }
 
         if ($filter->getSearch() !== null) {
-            $select->where('whatsapp_message.text_content LIKE ?', '%' . $filter->getSearch() . '%');
+            $select->where('m.text_content LIKE :search')
+                ->setParameter('search', '%' . $filter->getSearch() . '%');
         }
 
         if ($filter->getDirect() === true) {
-            $select->where('whatsapp_message.group_id IS NULL');
+            $select->where('m.group_id IS NULL');
         }
         if ($filter->getDirect() === false) {
-            $select->where('whatsapp_message.group_id IS NOT NULL');
+            $select->where('m.group_id IS NOT NULL');
         }
 
         if ($filter->getGroupId() !== null) {
-            $select->where('whatsapp_message.group_id=?', $filter->getGroupId());
+            $select->where('m.group_id=:group_id')
+                ->setParameter('group_id', $filter->getGroupId());
         }
 
-        $filter->setTotalResults($this->getCount($select));
-
-        $select->limitPage($filter->getPage(), $filter->getPerPage());
+        $this->applyCountAndLimit($select, $filter);
 
         return $this->getDb()->fetchAll($select);
     }
@@ -117,20 +128,24 @@ class WhatsappRepository extends DefaultRepository
 
     public function getMessageByWhatsappId(int $instanceId, string $whatsappId): ?array
     {
-        $select = $this->getDb()->select()->from('whatsapp_message')
-            ->where('instance_id=?', $instanceId)
-            ->where('message_id=?', $whatsappId)
-            ->setLockForUpdate(true);
+        $select = $this->getDb()->select('m.*')->from('whatsapp_message', 'm')
+            ->where('instance_id=:instance_id')
+            ->where('message_id=:whatsapp_id')
+            ->setParameter('instance_id', $instanceId)
+            ->setParameter('whatsapp_id', $whatsappId)
+            ->forUpdate();
 
-        return $this->selectSingleRowFromQuery($select);
+        return $this->getDb()->fetchRow($select);
     }
+
     public function getMessageByWhatsappIdStandalone(string $whatsappId): ?array
     {
-        $select = $this->getDb()->select()->from('whatsapp_message')
-            ->where('message_id=?', $whatsappId)
-            ->setLockForUpdate(true);
+        $select = $this->getDb()->select('m.*')->from('whatsapp_message', 'm')
+            ->where('m.message_id==:whatsapp_id')
+            ->setParameter('whatsapp_id', $whatsappId)
+            ->forUpdate();
 
-        return $this->selectSingleRowFromQuery($select);
+        return $this->getDb()->fetchRow($select);
     }
 
     public function saveMessage(WhatsappMessage $message): void
@@ -171,10 +186,11 @@ class WhatsappRepository extends DefaultRepository
 
     public function getInstanceByMetaValue(string $key, string $value): ?array
     {
-        $select = $this->getDb()->select()->from('whatsapp_instance')
-            ->where("metadata->>'.$key' = ?", $value);
+        $select = $this->getDb()->select('i.*')->from('whatsapp_instance', 'i')
+            ->where('metadata->>' . $key . ' = :value')
+            ->setParameter('value: ', $value);
 
-        return $this->selectSingleRowFromQuery($select);
+        return $this->getDb()->fetchRow($select);
     }
 
     public function getChildMessages(string $messageId): ?array
