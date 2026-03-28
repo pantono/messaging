@@ -141,7 +141,7 @@ class WhatsappRepository extends DefaultRepository
     public function getMessageByWhatsappIdStandalone(string $whatsappId): ?array
     {
         $select = $this->getDb()->select('m.*')->from('whatsapp_message', 'm')
-            ->where('m.message_id==:whatsapp_id')
+            ->where('m.message_id=:whatsapp_id')
             ->setParameter('whatsapp_id', $whatsappId)
             ->forUpdate();
 
