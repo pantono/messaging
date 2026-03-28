@@ -15,7 +15,7 @@ class WhatsappRepository extends DefaultRepository
     {
         $select = $this->getDb()->select('c.*')->from('whatsapp_contact', 'c')
             ->forUpdate()
-            ->where('c.id=:id')
+            ->andWhere('c.id=:id')
             ->setParameter('id', $id);
 
         return $this->getDb()->fetchRow($select);
@@ -25,8 +25,8 @@ class WhatsappRepository extends DefaultRepository
     {
         $select = $this->getDb()->select('c.*')->from('whatsapp_contact', 'c')
             ->forUpdate()
-            ->where('c.instance_id=:instance_id')
-            ->where('c.whatsapp_id=:whatsapp_id')
+            ->andWhere('c.instance_id=:instance_id')
+            ->andWhere('c.whatsapp_id=:whatsapp_id')
             ->setParameter('instance_id', $instance->getId())
             ->setParameter('whatsapp_id', $phoneNumber);
 
@@ -74,45 +74,45 @@ class WhatsappRepository extends DefaultRepository
             ->addOrderBy('date', 'DESC');
 
         if ($filter->getContact() !== null) {
-            $select->where('m.contact_id=:contact_id')
+            $select->andWhere('m.contact_id=:contact_id')
                 ->setParameter('contact_id', $filter->getContact()->getId());
         }
 
         if ($filter->getStartDate() !== null) {
-            $select->where('m.date >= :start_date')
+            $select->andWhere('m.date >= :start_date')
                 ->setParameter('start_date', $filter->getStartDate()->format('Y-m-d H:i:s'));
         }
 
         if ($filter->getEndDate() !== null) {
-            $select->where('m.date <= :end_date')
+            $select->andWhere('m.date <= :end_date')
                 ->setParameter('end_date', $filter->getEndDate()->format('Y-m-d H:i:s'));
         }
 
         if ($filter->getType() !== null) {
-            $select->where('m.type_id=:type_id')
+            $select->andWhere('m.type_id=:type_id')
                 ->setParameter('type_id', $filter->getType()->getId());
         }
 
         if ($filter->getWhatsappContactId() !== null) {
             $select->innerJoin('m', 'whatsapp_contact', 'c', 'c.id = m.contact_id')
-                ->where('c.whatsapp_id = :id')
+                ->andWhere('c.whatsapp_id = :id')
                 ->setParameter('id', $filter->getWhatsappContactId());
         }
 
         if ($filter->getSearch() !== null) {
-            $select->where('m.text_content LIKE :search')
+            $select->andWhere('m.text_content LIKE :search')
                 ->setParameter('search', '%' . $filter->getSearch() . '%');
         }
 
         if ($filter->getDirect() === true) {
-            $select->where('m.group_id IS NULL');
+            $select->andWhere('m.group_id IS NULL');
         }
         if ($filter->getDirect() === false) {
-            $select->where('m.group_id IS NOT NULL');
+            $select->andWhere('m.group_id IS NOT NULL');
         }
 
         if ($filter->getGroupId() !== null) {
-            $select->where('m.group_id=:group_id')
+            $select->andWhere('m.group_id=:group_id')
                 ->setParameter('group_id', $filter->getGroupId());
         }
 
@@ -129,8 +129,8 @@ class WhatsappRepository extends DefaultRepository
     public function getMessageByWhatsappId(int $instanceId, string $whatsappId): ?array
     {
         $select = $this->getDb()->select('m.*')->from('whatsapp_message', 'm')
-            ->where('instance_id=:instance_id')
-            ->where('message_id=:whatsapp_id')
+            ->andWhere('instance_id=:instance_id')
+            ->andWhere('message_id=:whatsapp_id')
             ->setParameter('instance_id', $instanceId)
             ->setParameter('whatsapp_id', $whatsappId)
             ->forUpdate();
@@ -141,7 +141,7 @@ class WhatsappRepository extends DefaultRepository
     public function getMessageByWhatsappIdStandalone(string $whatsappId): ?array
     {
         $select = $this->getDb()->select('m.*')->from('whatsapp_message', 'm')
-            ->where('m.message_id=:whatsapp_id')
+            ->andWhere('m.message_id=:whatsapp_id')
             ->setParameter('whatsapp_id', $whatsappId)
             ->forUpdate();
 
@@ -187,7 +187,7 @@ class WhatsappRepository extends DefaultRepository
     public function getInstanceByMetaValue(string $key, string $value): ?array
     {
         $select = $this->getDb()->select('i.*')->from('whatsapp_instance', 'i')
-            ->where('metadata->>' . $key . ' = :value')
+            ->andWhere('metadata->>' . $key . ' = :value')
             ->setParameter('value: ', $value);
 
         return $this->getDb()->fetchRow($select);
