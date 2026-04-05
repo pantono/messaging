@@ -2,6 +2,8 @@
 
 namespace Pantono\Messaging\Utility\Wasender;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
@@ -56,14 +58,35 @@ class DecryptWasenderMediaFile
         return $messageId . '.' . $extension;
     }
 
-    private static function downloadFile(string $url): string
+    private static function downloadFile(string $url, int $maxRetries = 3): string
     {
-        $context = stream_context_create([
-            "http" => [
-                "follow_location" => true,
-            ]
+        $client = new Client([
+            'allow_redirects' => true,
+            'verify' => true,
+            'timeout' => 30,
+            'connect_timeout' => 10,
         ]);
-        return file_get_contents($url, false, $context);
+
+        $attempt = 0;
+        $lastException = null;
+        while ($attempt < $maxRetries) {
+            try {
+                $response = $client->get($url);
+                return (string) $response->getBody();
+            } catch (RequestException $e) {
+                $lastException = $e;
+                $attempt++;
+                if ($attempt < $maxRetries) {
+                    sleep(1 * $attempt);
+                }
+            }
+        }
+
+        throw new \RuntimeException(
+            sprintf('Failed to download file after %d attempts: %s', $maxRetries, $lastException?->getMessage()),
+            0,
+            $lastException
+        );
     }
 
     private static function getDecryptionKeys(string $mediaKey, string $type = 'image', int $length = 112): string
