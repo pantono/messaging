@@ -63,7 +63,7 @@ class DecryptWasenderMediaFile
         $client = new Client([
             'allow_redirects' => true,
             'verify' => true,
-            'timeout' => 30,
+            'timeout' => 120,
             'connect_timeout' => 10,
         ]);
 
