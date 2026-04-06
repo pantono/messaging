@@ -68,19 +68,23 @@ class WasenderMessageEvents implements EventSubscriberInterface
         $hook = $event->getWebhook();
         if ($hook->getEvent() === 'messages.upsert') {
             $instance = $this->getInstanceFromHook($event);
-            $message = $this->createMessageFromWebhook($instance, $hook);
-            if ($message && $message->isIncoming() === false) {
-                try {
-                    $this->whatsapp->saveMessage($message);
-                } catch (\Exception $e) {
-                    if (str_contains($e->getMessage(), 'Deadlock')) {
-                        sleep(1);
+            $key = $hook->getKey();
+            $fromMe = $key['fromMe'] ?? false;
+            if ($fromMe) {
+                $message = $this->createMessageFromWebhook($instance, $hook);
+                if ($message && $message->isIncoming() === false) {
+                    try {
                         $this->whatsapp->saveMessage($message);
-                    } else {
-                        throw $e;
+                    } catch (\Exception $e) {
+                        if (str_contains($e->getMessage(), 'Deadlock')) {
+                            sleep(1);
+                            $this->whatsapp->saveMessage($message);
+                        } else {
+                            throw $e;
+                        }
                     }
+                    $event->setProcessed(true);
                 }
-                $event->setProcessed(true);
             }
         }
     }
