@@ -33,10 +33,10 @@ class WasenderMessageEvents implements EventSubscriberInterface
     {
         return [
             WasenderWebhookProcess::class => [
-                ['processIncomingMessage', 0],
-                ['processOutgoingMessage', 1],
-                ['processContactUpdate', 0],
-                ['processGroupUpdate', 0]
+                ['processIncomingMessage', 255],
+                ['processOutgoingMessage', 254],
+                ['processContactUpdate', 253],
+                ['processGroupUpdate', 252]
             ]
         ];
     }
