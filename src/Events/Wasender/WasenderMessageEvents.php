@@ -69,7 +69,7 @@ class WasenderMessageEvents implements EventSubscriberInterface
         if ($hook->getEvent() === 'messages.upsert') {
             $instance = $this->getInstanceFromHook($event);
             $key = $hook->getKey();
-            $fromMe = $key['fromMe'] ?? false;
+            $fromMe = $key->get('fromMe', false);
             if ($fromMe) {
                 $message = $this->createMessageFromWebhook($instance, $hook);
                 if ($message && $message->isIncoming() === false) {
