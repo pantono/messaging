@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Phinx\Migration\AbstractMigration;
+use Pantono\Database\Migration\Base\BasePantonoMigration;
 
-final class WasenderMigration extends AbstractMigration
+final class WasenderMigration extends BasePantonoMigration
 {
     public function change(): void
     {
-        $this->table('whatsapp_wasender_webhook')
+        $this->table($this->addTablePrefix('whatsapp_wasender_webhook'))
             ->addColumn('date', 'datetime')
             ->addColumn('event', 'string', ['null' => true])
             ->addColumn('headers', 'json')

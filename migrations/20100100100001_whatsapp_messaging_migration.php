@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Phinx\Migration\AbstractMigration;
+use Pantono\Database\Migration\Base\BasePantonoMigration;
 
-final class WhatsappMessagingMigration extends AbstractMigration
+final class WhatsappMessagingMigration extends BasePantonoMigration
 {
     public function change(): void
     {
-        $this->table('whatsapp_instance')
+        $this->table($this->addTablePrefix('whatsapp_instance'))
             ->addColumn('phone_number', 'string')
             ->addColumn('service', 'string')
             ->addColumn('name', 'string')
@@ -17,7 +17,7 @@ final class WhatsappMessagingMigration extends AbstractMigration
             ->addIndex('phone_number', ['unique' => true])
             ->create();
 
-        $this->table('whatsapp_message_type')
+        $this->table($this->addTablePrefix('whatsapp_message_type'))
             ->addColumn('name', 'string')
             ->addColumn('text', 'boolean', ['default' => 0])
             ->addColumn('album', 'boolean', ['default' => 0])
@@ -30,7 +30,7 @@ final class WhatsappMessagingMigration extends AbstractMigration
             ->create();
 
         if ($this->isMigratingUp()) {
-            $this->table('whatsapp_message_type')
+            $this->table($this->addTablePrefix('whatsapp_message_type'))
                 ->insert([
                     ['id' => 1, 'name' => 'Text', 'text' => 1],
                     ['id' => 2, 'name' => 'Album', 'album' => 1],
@@ -43,39 +43,39 @@ final class WhatsappMessagingMigration extends AbstractMigration
                     ['id' => 9, 'name' => 'Reaction', 'reaction' => 1],
                 ])->saveData();
         }
-        $this->table('whatsapp_contact')
+        $this->table($this->addTablePrefix('whatsapp_contact'))
             ->addColumn('instance_id', 'integer', ['signed' => false])
             ->addColumn('whatsapp_id', 'string')
             ->addColumn('name', 'string')
             ->addColumn('status', 'string', ['null' => true])
             ->addColumn('online', 'boolean')
             ->addIndex('whatsapp_id', ['unique' => true])
-            ->addForeignKey('instance_id', 'whatsapp_instance', 'id')
+            ->addForeignKey('instance_id', $this->addTablePrefix('whatsapp_instance'), 'id')
             ->create();
 
-        $this->table('whatsapp_group')
+        $this->table($this->addTablePrefix('whatsapp_group'))
             ->addColumn('instance_id', 'integer', ['signed' => false])
             ->addColumn('group_id', 'string', ['signed' => false])
             ->addColumn('subject', 'string')
             ->addColumn('owner_id', 'string', ['null' => true])
             ->addColumn('description', 'text', ['null' => true])
             ->addIndex('group_id', ['unique' => true])
-            ->addForeignKey('instance_id', 'whatsapp_instance', 'id')
+            ->addForeignKey('instance_id', $this->addTablePrefix('whatsapp_instance'), 'id')
             ->create();
 
-        $this->table('whatsapp_group_member', ['id' => false])
+        $this->table($this->addTablePrefix('whatsapp_group_member'), ['id' => false])
             ->addColumn('group_id', 'integer', ['signed' => false])
             ->addColumn('contact_id', 'integer', ['signed' => false, 'null' => true])
             ->addColumn('is_admin', 'boolean', ['default' => false])
             ->addColumn('is_super_admin', 'boolean', ['default' => false])
             ->addColumn('lid', 'string', ['null' => false])
             ->addIndex(['group_id', 'contact_id'], ['unique' => true])
-            ->addForeignKey('group_id', 'whatsapp_group', 'id')
-            ->addForeignKey('contact_id', 'whatsapp_contact', 'id')
+            ->addForeignKey('group_id', $this->addTablePrefix('whatsapp_group'), 'id')
+            ->addForeignKey('contact_id', $this->addTablePrefix('whatsapp_contact'), 'id')
             ->addIndex(['group_id', 'lid'], ['unique' => true])
             ->create();
 
-        $this->table('whatsapp_message')
+        $this->table($this->addTablePrefix('whatsapp_message'))
             ->addColumn('instance_id', 'integer', ['signed' => false])
             ->addColumn('date', 'datetime')
             ->addColumn('type_id', 'integer', ['signed' => false])
@@ -91,13 +91,13 @@ final class WhatsappMessagingMigration extends AbstractMigration
             ->addColumn('status', 'string', ['null' => true])
             ->addColumn('mentions', 'json')
             ->addIndex('message_id', ['unique' => true])
-            ->addForeignKey('instance_id', 'whatsapp_instance', 'id')
-            ->addForeignKey('type_id', 'whatsapp_message_type', 'id')
-            ->addForeignKey('group_id', 'whatsapp_group', 'id')
-            ->addForeignKey('contact_id', 'whatsapp_contact', 'id')
-            ->addForeignKey('parent_id', 'whatsapp_message', 'message_id')
-            ->addForeignKey('reply_to', 'whatsapp_message', 'message_id')
-            ->addForeignKey('file_id', 'stored_file', 'id')
+            ->addForeignKey('instance_id', $this->addTablePrefix('whatsapp_instance'), 'id')
+            ->addForeignKey('type_id', $this->addTablePrefix('whatsapp_message_type'), 'id')
+            ->addForeignKey('group_id', $this->addTablePrefix('whatsapp_group'), 'id')
+            ->addForeignKey('contact_id', $this->addTablePrefix('whatsapp_contact'), 'id')
+            ->addForeignKey('parent_id', $this->addTablePrefix('whatsapp_message'), 'message_id')
+            ->addForeignKey('reply_to', $this->addTablePrefix('whatsapp_message'), 'message_id')
+            ->addForeignKey('file_id', $this->addTablePrefix('stored_file'), 'id')
             ->create();
     }
 }
