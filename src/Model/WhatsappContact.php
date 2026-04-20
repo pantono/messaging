@@ -4,6 +4,7 @@ namespace Pantono\Messaging\Model;
 
 use Pantono\Contracts\Attributes\Database\OneToOne;
 use Pantono\Contracts\Attributes\DatabaseTable;
+use Pantono\Contracts\Attributes\FieldName;
 use Pantono\Database\Traits\SavableModel;
 
 #[DatabaseTable('whatsapp_contact')]
@@ -12,7 +13,7 @@ class WhatsappContact
     use SavableModel;
 
     private ?int $id = null;
-    #[OneToOne(targetModel: WhatsappInstance::class)]
+    #[OneToOne(targetModel: WhatsappInstance::class), FieldName('instance_id')]
     private WhatsappInstance $instance;
     private string $whatsappId;
     private ?string $name = null;
