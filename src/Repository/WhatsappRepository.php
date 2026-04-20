@@ -174,7 +174,7 @@ class WhatsappRepository extends DefaultRepository
         $this->getDb()->delete('whatsapp_group_member', ['group_id' => $group->getId()]);
 
         foreach ($group->getMembers() as $member) {
-            $this->insert('whatsapp_group_member', [
+            $this->getDb()->insert('whatsapp_group_member', [
                 'group_id' => $group->getId(),
                 'lid' => $member->getLid(),
                 'contact_id' => $member->getContact()?->getId(),
