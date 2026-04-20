@@ -2,18 +2,17 @@
 
 namespace Pantono\Messaging\Model;
 
-use Pantono\Contracts\Attributes\FieldName;
-use Pantono\Contracts\Attributes\Locator;
+use Pantono\Contracts\Attributes\Database\OneToOne;
+use Pantono\Contracts\Attributes\DatabaseTable;
 use Pantono\Database\Traits\SavableModel;
-use Pantono\Messaging\Whatsapp;
 
-#[Locator(methodName: 'getContactById', className: Whatsapp::class)]
+#[DatabaseTable('whatsapp_contact')]
 class WhatsappContact
 {
     use SavableModel;
 
     private ?int $id = null;
-    #[FieldName('instance_id'), Locator(methodName: 'getInstanceById', className: Whatsapp::class)]
+    #[OneToOne(targetModel: WhatsappInstance::class)]
     private WhatsappInstance $instance;
     private string $whatsappId;
     private ?string $name = null;

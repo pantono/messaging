@@ -2,17 +2,17 @@
 
 namespace Pantono\Messaging\Model;
 
+use Pantono\Contracts\Attributes\Database\OneToOne;
+use Pantono\Contracts\Attributes\DatabaseTable;
 use Pantono\Contracts\Attributes\FieldName;
-use Pantono\Contracts\Attributes\Lazy;
-use Pantono\Contracts\Attributes\Locator;
-use Pantono\Messaging\Whatsapp;
 
+#[DatabaseTable('whatsapp_group_member')]
 class WhatsappGroupMember
 {
     private ?int $id = null;
     private int $groupId;
     private ?int $contactId = null;
-    #[Locator(methodName: 'getContactById', className: Whatsapp::class), FieldName('contact_id'), Lazy]
+    #[OneToOne(targetModel: WhatsappContact::class), FieldName('contact_id')]
     private ?WhatsappContact $contact = null;
     private string $lid;
     private bool $isAdmin;

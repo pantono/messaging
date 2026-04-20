@@ -2,12 +2,11 @@
 
 namespace Pantono\Messaging\Model;
 
-use Pantono\Contracts\Attributes\FieldName;
-use Pantono\Contracts\Attributes\Locator;
+use Pantono\Contracts\Attributes\Database\OneToMany;
+use Pantono\Contracts\Attributes\DatabaseTable;
 use Pantono\Database\Traits\SavableModel;
-use Pantono\Messaging\Whatsapp;
 
-#[Locator(methodName: 'getGroupById', className: Whatsapp::class)]
+#[DatabaseTable('whatsapp_group')]
 class WhatsappGroup
 {
     use SavableModel;
@@ -18,10 +17,7 @@ class WhatsappGroup
     private ?string $subject = null;
     private ?string $ownerId = null;
     private ?string $description = null;
-    /**
-     * @var WhatsappGroupMember[]
-     */
-    #[Locator(methodName: 'getMembersInGroup', className: Whatsapp::class), FieldName('$this')]
+    #[OneToMany(targetModel: WhatsappGroupMember::class, mappedBy: 'group_id')]
     private array $members = [];
 
     public function getId(): ?int
