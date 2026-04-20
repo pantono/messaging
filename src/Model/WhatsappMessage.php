@@ -2,6 +2,8 @@
 
 namespace Pantono\Messaging\Model;
 
+use Pantono\Contracts\Attributes\Database\OneToOne;
+use Pantono\Contracts\Attributes\DatabaseTable;
 use Pantono\Contracts\Attributes\FieldName;
 use Pantono\Contracts\Attributes\Filter;
 use Pantono\Contracts\Attributes\Lazy;
@@ -9,10 +11,9 @@ use Pantono\Contracts\Attributes\Locator;
 use Pantono\Contracts\Attributes\NoSave;
 use Pantono\Database\Traits\SavableModel;
 use Pantono\Messaging\Whatsapp;
-use Pantono\Storage\FileStorage;
 use Pantono\Storage\Model\StoredFile;
 
-#[Locator(methodName: 'getMessageById', className: Whatsapp::class)]
+#[DatabaseTable('whatsapp_message')]
 class WhatsappMessage
 {
     use SavableModel;
@@ -20,12 +21,12 @@ class WhatsappMessage
     private ?int $id = null;
     private int $instanceId;
     private \DateTimeInterface $date;
-    #[Locator(methodName: 'getMessageTypeById', className: Whatsapp::class), Lazy, FieldName('type_id')]
+    #[OneToOne(targetModel: WhatsappMessageType::class), FieldName('type_id')]
     private ?WhatsappMessageType $type = null;
-    #[Locator(methodName: 'getGroupById', className: Whatsapp::class), Lazy, FieldName('group_id')]
+    #[OneToOne(targetModel: WhatsappGroup::class), FieldName('group_id')]
     private ?WhatsappGroup $group = null;
     private ?string $messageId = null;
-    #[Locator(methodName: 'getContactById', className: Whatsapp::class), Lazy, FieldName('contact_id')]
+    #[OneToOne(targetModel: WhatsappContact::class), FieldName('contact_id')]
     private ?WhatsappContact $contact = null;
     private bool $incoming;
     private ?string $textContent = null;
@@ -37,7 +38,7 @@ class WhatsappMessage
     #[Locator(methodName: 'getMessageByWhatsappIdStandalone', className: Whatsapp::class), Lazy, FieldName('parent_id'), NoSave]
     private ?WhatsappMessage $parentMessage = null;
     private ?string $parentId = null;
-    #[Locator(methodName: 'getFileById', className: FileStorage::class), Lazy, FieldName('file_id')]
+    #[OneToOne(targetModel: StoredFile::class), FieldName('file_id')]
     private ?StoredFile $file = null;
     private ?string $replyTo = null;
     #[Locator(methodName: 'getMessageByWhatsappIdStandalone', className: Whatsapp::class), Lazy, FieldName('reply_to'), NoSave]

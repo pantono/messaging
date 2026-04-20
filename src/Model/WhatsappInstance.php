@@ -2,11 +2,10 @@
 
 namespace Pantono\Messaging\Model;
 
+use Pantono\Contracts\Attributes\DatabaseTable;
 use Pantono\Contracts\Attributes\Filter;
-use Pantono\Contracts\Attributes\Locator;
-use Pantono\Messaging\Whatsapp;
 
-#[Locator(methodName: 'getInstanceById', className: Whatsapp::class)]
+#[DatabaseTable('whatsapp_instance')]
 class WhatsappInstance
 {
     private ?int $id = null;

@@ -2,10 +2,9 @@
 
 namespace Pantono\Messaging\Model;
 
-use Pantono\Contracts\Attributes\Locator;
-use Pantono\Messaging\Whatsapp;
+use Pantono\Contracts\Attributes\DatabaseTable;
 
-#[Locator(methodName: 'getMessageTypeById', className: Whatsapp::class)]
+#[DatabaseTable('whatsapp_message_type')]
 class WhatsappMessageType
 {
     private ?int $id = null;
