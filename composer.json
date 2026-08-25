@@ -9,7 +9,7 @@
     "pantono/phinx": "^0.16",
     "pantono/database": "^1.0",
     "pantono/hydrator": "^1.0",
-    "pantono/logger": "^0",
+    "pantono/logger": "^1",
     "pantono/images": "^1.0",
     "pantono/queue": "^1.0",
     "symfony/event-dispatcher": "^8.0",
